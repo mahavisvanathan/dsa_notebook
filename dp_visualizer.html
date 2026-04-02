@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Programming — Visual Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0eee8;
+    --muted: rgba(240,238,232,0.45);
+    --hint: rgba(240,238,232,0.2);
+    --purple: #8b7cf8;
+    --purple-light: #b8aeff;
+    --purple-dim: rgba(139,124,248,0.15);
+    --teal: #2dd4a0;
+    --teal-dim: rgba(45,212,160,0.12);
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --coral: #f07855;
+    --coral-dim: rgba(240,120,85,0.12);
+    --green: #6bcb77;
+    --green-dim: rgba(107,203,119,0.12);
+    --cell-size: 52px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    padding: 3rem 2rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--purple);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--purple-light); }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  /* LAYOUT */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  /* PROBLEM TABS */
+  .prob-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .ptab {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 7px 16px;
+    border-radius: 4px;
+    border: 0.5px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .ptab:hover { color: var(--text); border-color: var(--purple); }
+  .ptab.active { background: var(--purple-dim); color: var(--purple-light); border-color: var(--purple); }
+
+  /* PROBLEM PANEL */
+  .problem-panel { display: none; }
+  .problem-panel.active { display: block; }
+
+  /* META ROW */
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 600px) { .meta-row { grid-template-columns: 1fr; } }
+
+  .meta-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--hint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .meta-value {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .recurrence {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--teal);
+    line-height: 2;
+  }
+
+  /* INPUT ROW */
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .input-row label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .input-row input[type="text"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    padding: 7px 12px;
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    width: 240px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .input-row input[type="text"]:focus { border-color: var(--purple); }
+
+  .btn-rebuild {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 7px 14px;
+    background: var(--purple-dim);
+    border: 0.5px solid var(--purple);
+    border-radius: 6px;
+    color: var(--purple-light);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-rebuild:hover { background: rgba(139,124,248,0.25); }
+
+  /* STEP EXPLANATION */
+  .explain-box {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-left: 3px solid var(--purple);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 1.25rem;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 52px;
+    transition: all 0.2s;
+  }
+
+  .explain-box .mono { font-family: 'IBM Plex Mono', monospace; color: var(--teal); }
+  .explain-box .hi { color: var(--amber); }
+  .explain-box .res { color: var(--green); font-weight: 500; }
+
+  /* CONTROLS */
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .ctrl-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 0.5px solid var(--border2);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .ctrl-btn:hover { border-color: var(--border2); background: var(--surface2); }
+  .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .ctrl-btn.primary { border-color: var(--purple); color: var(--purple-light); background: var(--purple-dim); }
+
+  .step-counter {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--hint);
+    margin-left: auto;
+  }
+
+  /* 1D ARRAY */
+  .array-viz {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .array-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: var(--cell-size);
+  }
+
+  .arr-idx {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--hint);
+    margin-bottom: 4px;
+  }
+
+  .arr-cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border: 0.5px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--surface);
+    transition: all 0.25s;
+    position: relative;
+  }
+
+  .arr-cell:not(:last-child) { border-right: none; }
+  .arr-cell.filled { color: var(--text); background: var(--surface2); }
+  .arr-cell.current { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-light); box-shadow: 0 0 0 1px var(--purple); z-index: 1; }
+  .arr-cell.source { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); }
+  .arr-cell.answer { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+  .arr-input-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+    margin-top: 4px;
+  }
+
+  /* 2D TABLE */
+  .table-scroll { overflow-x: auto; margin-bottom: 1.5rem; }
+
+  table.dp2d {
+    border-collapse: collapse;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  table.dp2d th {
+    width: var(--cell-size);
+    height: 30px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--hint);
+    font-weight: 400;
+    border: none;
+    padding: 0 4px;
+  }
+
+  table.dp2d td {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    text-align: center;
+    border: 0.5px solid var(--border);
+    color: var(--muted);
+    background: var(--surface);
+    transition: all 0.2s;
+    font-size: 13px;
+    position: relative;
+  }
+
+  table.dp2d td.filled { color: var(--text); background: var(--surface2); }
+  table.dp2d td.current { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-light); box-shadow: inset 0 0 0 1px var(--purple); }
+  table.dp2d td.source-row { background: var(--teal-dim); color: var(--teal); border-color: rgba(45,212,160,0.3); }
+  table.dp2d td.source-col { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,166,35,0.3); }
+  table.dp2d td.answer { background: var(--green-dim); border-color: var(--green); color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+
+  .row-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--hint);
+    text-align: right;
+    padding-right: 10px;
+    white-space: nowrap;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .leg-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 0.5px solid transparent;
+    flex-shrink: 0;
+  }
+
+  /* COMPLEXITY BADGES */
+  .complexity-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 0.5px solid;
+  }
+
+  .badge-time { background: var(--purple-dim); color: var(--purple-light); border-color: rgba(139,124,248,0.3); }
+  .badge-space { background: var(--teal-dim); color: var(--teal); border-color: rgba(45,212,160,0.3); }
+  .badge-pattern { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,166,35,0.3); }
+
+  /* SECTION DIVIDER */
+  .divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* AUTO-PLAY */
+  .playing .ctrl-btn.primary { background: var(--coral-dim); border-color: var(--coral); color: var(--coral); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--hint);
+    border-top: 0.5px solid var(--border);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Interview prep — dynamic programming</div>
+  <h1>Visualize the <span>subproblem</span></h1>
+  <p class="subtitle">Step through five classic DP problems cell by cell. The key to DP is naming the subproblem before you write any code — the table fills itself once you have that.</p>
+</header>
+
+<main>
+  <div class="prob-nav">
+    <button class="ptab active" onclick="switchProblem('fib')">1D — Fibonacci</button>
+    <button class="ptab" onclick="switchProblem('climb')">1D — Climbing stairs</button>
+    <button class="ptab" onclick="switchProblem('rob')">1D — House robber</button>
+    <button class="ptab" onclick="switchProblem('lcs')">2D — Longest common subsequence</button>
+    <button class="ptab" onclick="switchProblem('edit')">2D — Edit distance</button>
+  </div>
+
+  <!-- FIB -->
+  <div class="problem-panel active" id="panel-fib">
+    <div class="meta-row">
+      <div class="meta-card">
+        <div class="meta-label">Subproblem</div>
+        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i]</code> = the i-th Fibonacci number</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">Recurrence</div>
+        <div class="recurrence">dp[i] = dp[i-1] + dp[i-2]<br>dp[0] = 0, dp[1] = 1</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <label>n =</label>
+      <input type="text" id="fib-n" value="10" maxlength="3" style="width:80px">
+      <button class="btn-rebuild" onclick="initFib()">rebuild</button>
+    </div>
+    <div class="explain-box" id="fib-explain">Press <strong>Next step</strong> to begin filling the table.</div>
+    <div class="ctrl-row" id="fib-ctrl">
+      <button class="ctrl-btn" onclick="fibStep(-1)">&#8592; Prev</button>
+      <button class="ctrl-btn primary" onclick="togglePlay('fib')">&#9654; Play</button>
+      <button class="ctrl-btn" onclick="fibStep(1)">Next &#8594;</button>
+      <button class="ctrl-btn" onclick="initFib()">Reset</button>
+      <span class="step-counter" id="fib-counter">step 0</span>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--surface2);border-color:var(--border2)"></div>filled</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>source cells</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
+    </div>
+    <div class="array-viz" id="fib-array"></div>
+    <div class="complexity-row">
+      <span class="badge badge-time">time: O(n)</span>
+      <span class="badge badge-space">space: O(n) → O(1) optimized</span>
+      <span class="badge badge-pattern">pattern: linear 1D DP</span>
+    </div>
+  </div>
+
+  <!-- CLIMB -->
+  <div class="problem-panel" id="panel-climb">
+    <div class="meta-row">
+      <div class="meta-card">
+        <div class="meta-label">Subproblem</div>
+        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i]</code> = number of ways to reach stair i</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">Recurrence</div>
+        <div class="recurrence">dp[i] = dp[i-1] + dp[i-2]<br>dp[1] = 1, dp[2] = 2</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <label>n stairs =</label>
+      <input type="text" id="climb-n" value="8" maxlength="2" style="width:80px">
+      <button class="btn-rebuild" onclick="initClimb()">rebuild</button>
+    </div>
+    <div class="explain-box" id="climb-explain">Press <strong>Next step</strong> to begin filling the table.</div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="climbStep(-1)">&#8592; Prev</button>
+      <button class="ctrl-btn primary" onclick="togglePlay('climb')">&#9654; Play</button>
+      <button class="ctrl-btn" onclick="climbStep(1)">Next &#8594;</button>
+      <button class="ctrl-btn" onclick="initClimb()">Reset</button>
+      <span class="step-counter" id="climb-counter">step 0</span>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--surface2);border-color:var(--border2)"></div>filled</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>source cells</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
+    </div>
+    <div class="array-viz" id="climb-array"></div>
+    <div class="complexity-row">
+      <span class="badge badge-time">time: O(n)</span>
+      <span class="badge badge-space">space: O(n) → O(1) optimized</span>
+      <span class="badge badge-pattern">pattern: linear 1D DP</span>
+    </div>
+  </div>
+
+  <!-- ROB -->
+  <div class="problem-panel" id="panel-rob">
+    <div class="meta-row">
+      <div class="meta-card">
+        <div class="meta-label">Subproblem</div>
+        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i]</code> = max money robbing houses 0..i</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">Recurrence</div>
+        <div class="recurrence">dp[i] = max(dp[i-1], dp[i-2] + nums[i])<br>dp[0] = nums[0], dp[1] = max(nums[0], nums[1])</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <label>houses =</label>
+      <input type="text" id="rob-input" value="2,7,9,3,1,8,4" style="width:220px">
+      <button class="btn-rebuild" onclick="initRob()">rebuild</button>
+    </div>
+    <div class="explain-box" id="rob-explain">Press <strong>Next step</strong> to begin. Adjacent houses have alarms — you can't rob two in a row.</div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="robStep(-1)">&#8592; Prev</button>
+      <button class="ctrl-btn primary" onclick="togglePlay('rob')">&#9654; Play</button>
+      <button class="ctrl-btn" onclick="robStep(1)">Next &#8594;</button>
+      <button class="ctrl-btn" onclick="initRob()">Reset</button>
+      <span class="step-counter" id="rob-counter">step 0</span>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--surface2);border-color:var(--border2)"></div>filled</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>source cells</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
+    </div>
+    <div class="array-viz" id="rob-array"></div>
+    <div class="complexity-row">
+      <span class="badge badge-time">time: O(n)</span>
+      <span class="badge badge-space">space: O(n) → O(1) optimized</span>
+      <span class="badge badge-pattern">pattern: decision at each step</span>
+    </div>
+  </div>
+
+  <!-- LCS -->
+  <div class="problem-panel" id="panel-lcs">
+    <div class="meta-row">
+      <div class="meta-card">
+        <div class="meta-label">Subproblem</div>
+        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i][j]</code> = LCS length of s1[0..i-1] and s2[0..j-1]</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">Recurrence</div>
+        <div class="recurrence">if s1[i-1]==s2[j-1]: dp[i-1][j-1]+1<br>else: max(dp[i-1][j], dp[i][j-1])</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <label>s1 =</label>
+      <input type="text" id="lcs-s1" value="ABCBDAB" style="width:160px">
+      <label>s2 =</label>
+      <input type="text" id="lcs-s2" value="BDCAB" style="width:160px">
+      <button class="btn-rebuild" onclick="initLCS()">rebuild</button>
+    </div>
+    <div class="explain-box" id="lcs-explain">Press <strong>Next step</strong> to begin. Each cell asks: what's the longest common subsequence up to these two prefixes?</div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="lcsStep(-1)">&#8592; Prev</button>
+      <button class="ctrl-btn primary" onclick="togglePlay('lcs')">&#9654; Play</button>
+      <button class="ctrl-btn" onclick="lcsStep(1)">Next &#8594;</button>
+      <button class="ctrl-btn" onclick="initLCS()">Reset</button>
+      <span class="step-counter" id="lcs-counter">step 0</span>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>same row (i-1)</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--amber-dim);border-color:var(--amber)"></div>same col (j-1)</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
+    </div>
+    <div class="table-scroll" id="lcs-table"></div>
+    <div class="complexity-row">
+      <span class="badge badge-time">time: O(m·n)</span>
+      <span class="badge badge-space">space: O(m·n)</span>
+      <span class="badge badge-pattern">pattern: 2D match/skip</span>
+    </div>
+  </div>
+
+  <!-- EDIT -->
+  <div class="problem-panel" id="panel-edit">
+    <div class="meta-row">
+      <div class="meta-card">
+        <div class="meta-label">Subproblem</div>
+        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i][j]</code> = min edits to convert word1[0..i-1] → word2[0..j-1]</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">Recurrence</div>
+        <div class="recurrence">if w1[i-1]==w2[j-1]: dp[i-1][j-1]<br>else: 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <label>word1 =</label>
+      <input type="text" id="edit-w1" value="horse" style="width:120px">
+      <label>word2 =</label>
+      <input type="text" id="edit-w2" value="ros" style="width:120px">
+      <button class="btn-rebuild" onclick="initEdit()">rebuild</button>
+    </div>
+    <div class="explain-box" id="edit-explain">Press <strong>Next step</strong> to begin. Three operations allowed: insert, delete, replace (each costs 1).</div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="editStep(-1)">&#8592; Prev</button>
+      <button class="ctrl-btn primary" onclick="togglePlay('edit')">&#9654; Play</button>
+      <button class="ctrl-btn" onclick="editStep(1)">Next &#8594;</button>
+      <button class="ctrl-btn" onclick="initEdit()">Reset</button>
+      <span class="step-counter" id="edit-counter">step 0</span>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>delete (row above)</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--amber-dim);border-color:var(--amber)"></div>insert (col left)</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
+    </div>
+    <div class="table-scroll" id="edit-table"></div>
+    <div class="complexity-row">
+      <span class="badge badge-time">time: O(m·n)</span>
+      <span class="badge badge-space">space: O(m·n)</span>
+      <span class="badge badge-pattern">pattern: 2D min-cost transformation</span>
+    </div>
+  </div>
+
+</main>
+
+<footer>dynamic programming visualizer &mdash; step through, not memorize</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ─── UTILITIES ───────────────────────────────────────────────────────────────
+function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+
+// ─── PLAY STATE ──────────────────────────────────────────────────────────────
+const players = { fib: null, climb: null, rob: null, lcs: null, edit: null };
+const steppers = { fib: s => fibStep(s), climb: s => climbStep(s), rob: s => robStep(s), lcs: s => lcsStep(s), edit: s => editStep(s) };
+
+function togglePlay(id) {
+  if (players[id]) {
+    clearInterval(players[id]);
+    players[id] = null;
+    updatePlayBtn(id, false);
+  } else {
+    players[id] = setInterval(() => {
+      const cont = steppers[id](1);
+      if (!cont) { clearInterval(players[id]); players[id] = null; updatePlayBtn(id, false); }
+    }, 400);
+    updatePlayBtn(id, true);
+  }
+}
+
+function updatePlayBtn(id, playing) {
+  const panels = document.querySelectorAll(`#panel-${id} .ctrl-btn.primary`);
+  panels.forEach(b => b.textContent = playing ? '⏸ Pause' : '▶ Play');
+}
+
+function stopPlay(id) {
+  if (players[id]) { clearInterval(players[id]); players[id] = null; updatePlayBtn(id, false); }
+}
+
+// ─── TAB SWITCH ──────────────────────────────────────────────────────────────
+function switchProblem(id) {
+  Object.keys(players).forEach(stopPlay);
+  document.querySelectorAll('.problem-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  $(`panel-${id}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── 1D ARRAY RENDERER ───────────────────────────────────────────────────────
+function render1D(containerId, dp, step, n, inputVals, highlightSrc, highlightAnswer) {
+  const c = $(containerId);
+  c.innerHTML = '';
+  for (let i = 0; i <= n; i++) {
+    const blk = document.createElement('div');
+    blk.className = 'array-block';
+    const idx = document.createElement('div');
+    idx.className = 'arr-idx';
+    idx.textContent = i;
+    const cell = document.createElement('div');
+    cell.className = 'arr-cell';
+    const val = dp[i];
+    if (val !== undefined && val !== null) {
+      cell.textContent = val;
+      if (i === highlightAnswer && step >= n) { cell.classList.add('answer'); }
+      else if (highlightSrc && highlightSrc.includes(i) && i < step) { cell.classList.add('source'); }
+      else if (i === step) { cell.classList.add('current'); }
+      else { cell.classList.add('filled'); }
+    } else {
+      cell.textContent = '·';
+    }
+    blk.appendChild(idx);
+    blk.appendChild(cell);
+    if (inputVals && inputVals[i] !== undefined) {
+      const iv = document.createElement('div');
+      iv.className = 'arr-input-val';
+      iv.textContent = inputVals[i];
+      blk.appendChild(iv);
+    }
+    c.appendChild(blk);
+  }
+}
+
+// ─── 2D TABLE RENDERER ───────────────────────────────────────────────────────
+function render2D(containerId, dp, rows, cols, rowHeader, colHeader, curI, curJ, srcCells, isAnswer) {
+  const c = $(containerId);
+  let html = '<table class="dp2d"><thead><tr><th></th><th></th>';
+  for (let j = 0; j <= cols; j++) {
+    html += `<th>${j === 0 ? '' : colHeader[j-1]}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+  for (let i = 0; i <= rows; i++) {
+    html += `<tr><td class="row-header">${i === 0 ? '' : rowHeader[i-1]}</td><td class="row-header" style="color:var(--hint)">${i}</td>`;
+    for (let j = 0; j <= cols; j++) {
+      const val = dp[i] !== undefined ? dp[i][j] : undefined;
+      let cls = '';
+      if (i === curI && j === curJ) { cls = isAnswer ? 'answer' : 'current'; }
+      else if (srcCells) {
+        const isSrc = srcCells.some(s => s[0] === i && s[1] === j);
+        if (isSrc) {
+          const isRow = srcCells.find(s => s[0] === i && s[1] === j && s[2] === 'row');
+          const isCol = srcCells.find(s => s[0] === i && s[1] === j && s[2] === 'col');
+          if (isRow) cls = 'source-row';
+          else if (isCol) cls = 'source-col';
+          else cls = 'source-row';
+        } else if (val !== undefined) { cls = 'filled'; }
+      } else if (val !== undefined) { cls = 'filled'; }
+      html += `<td class="${cls}">${val !== undefined ? val : '·'}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FIB
+// ═══════════════════════════════════════════════════════════════════════════════
+let fibState = {};
+
+function initFib() {
+  stopPlay('fib');
+  const n = clamp(parseInt($('fib-n').value) || 10, 2, 20);
+  fibState = { n, dp: new Array(n+1).fill(null), step: -1 };
+  $('fib-explain').innerHTML = 'Press <strong>Next step</strong> to begin filling the table.';
+  $('fib-counter').textContent = 'step 0';
+  render1D('fib-array', fibState.dp, -1, n, null, null, n);
+}
+
+function fibStep(dir) {
+  const s = fibState;
+  const nextStep = s.step + dir;
+  if (nextStep < 0 || nextStep > s.n) return false;
+  s.step = nextStep;
+  const dp = s.dp.slice();
+  // fill up to current step
+  const filled = new Array(s.n + 1).fill(null);
+  filled[0] = 0; filled[1] = 1;
+  for (let i = 2; i <= s.step; i++) filled[i] = filled[i-1] + filled[i-2];
+  if (s.step === 0) filled[0] = 0;
+  if (s.step === 1) { filled[0] = 0; filled[1] = 1; }
+  s.dp = filled;
+
+  const i = s.step;
+  let expl = '';
+  if (i === 0) expl = `Base case: <span class="mono">dp[0] = 0</span>`;
+  else if (i === 1) expl = `Base case: <span class="mono">dp[1] = 1</span>`;
+  else expl = `<span class="mono">dp[${i}] = dp[${i-1}] + dp[${i-2}] = ${filled[i-1]} + ${filled[i-2]} = <span class="res">${filled[i]}</span></span>`;
+  if (i === s.n) expl += `  — <span class="res">Answer: ${filled[s.n]}</span>`;
+
+  const src = i >= 2 ? [i-1, i-2] : [];
+  $('fib-explain').innerHTML = expl;
+  $('fib-counter').textContent = `step ${i + 1} / ${s.n + 1}`;
+  render1D('fib-array', s.dp, i, s.n, null, src, s.n);
+  return i < s.n;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIMB
+// ═══════════════════════════════════════════════════════════════════════════════
+let climbState = {};
+
+function initClimb() {
+  stopPlay('climb');
+  const n = clamp(parseInt($('climb-n').value) || 8, 2, 15);
+  climbState = { n, dp: new Array(n+1).fill(null), step: -1 };
+  $('climb-explain').innerHTML = 'Press <strong>Next step</strong> to begin. Each step you can climb 1 or 2 stairs.';
+  $('climb-counter').textContent = 'step 0';
+  render1D('climb-array', climbState.dp, -1, n, null, null, n);
+}
+
+function climbStep(dir) {
+  const s = climbState;
+  const nextStep = s.step + dir;
+  if (nextStep < 0 || nextStep > s.n) return false;
+  s.step = nextStep;
+  const filled = new Array(s.n + 1).fill(null);
+  filled[0] = 1; filled[1] = 1;
+  for (let i = 2; i <= s.step; i++) filled[i] = filled[i-1] + filled[i-2];
+  if (s.step < 2) { filled[0]=1; if(s.step>=1) filled[1]=1; }
+  s.dp = filled;
+
+  const i = s.step;
+  let expl = '';
+  if (i === 0) expl = `Base case: <span class="mono">dp[0] = 1</span> (one way to stand at the bottom)`;
+  else if (i === 1) expl = `Base case: <span class="mono">dp[1] = 1</span> (one way to reach stair 1: step once)`;
+  else expl = `<span class="mono">dp[${i}] = dp[${i-1}] + dp[${i-2}] = ${filled[i-1]} + ${filled[i-2]} = <span class="res">${filled[i]}</span></span> — ways from stair ${i-1} (1 step) or stair ${i-2} (2 steps)`;
+  if (i === s.n) expl += `  — <span class="res">Total ways to reach stair ${s.n}: ${filled[s.n]}</span>`;
+
+  const src = i >= 2 ? [i-1, i-2] : [];
+  $('climb-explain').innerHTML = expl;
+  $('climb-counter').textContent = `step ${i + 1} / ${s.n + 1}`;
+  render1D('climb-array', s.dp, i, s.n, null, src, s.n);
+  return i < s.n;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HOUSE ROBBER
+// ═══════════════════════════════════════════════════════════════════════════════
+let robState = {};
+
+function initRob() {
+  stopPlay('rob');
+  const raw = $('rob-input').value.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+  const nums = raw.length >= 2 ? raw.slice(0, 12) : [2,7,9,3,1,8,4];
+  const n = nums.length;
+  robState = { n, nums, dp: new Array(n).fill(null), step: -1 };
+  $('rob-explain').innerHTML = 'Press <strong>Next step</strong> to begin. Adjacent houses have alarms — you can\'t rob two in a row.';
+  $('rob-counter').textContent = 'step 0';
+  render1D('rob-array', robState.dp, -1, n-1, nums.map(v => `$${v}`), null, n-1);
+}
+
+function robStep(dir) {
+  const s = robState;
+  const nextStep = s.step + dir;
+  if (nextStep < 0 || nextStep >= s.n) return false;
+  s.step = nextStep;
+
+  const filled = new Array(s.n).fill(null);
+  filled[0] = s.nums[0];
+  if (s.step >= 1) filled[1] = Math.max(s.nums[0], s.nums[1]);
+  for (let i = 2; i <= s.step; i++) filled[i] = Math.max(filled[i-1], filled[i-2] + s.nums[i]);
+  s.dp = filled;
+
+  const i = s.step;
+  let expl = '';
+  if (i === 0) expl = `Base case: <span class="mono">dp[0] = nums[0] = <span class="res">${s.nums[0]}</span></span> — only one house, rob it.`;
+  else if (i === 1) expl = `Base case: <span class="mono">dp[1] = max(nums[0], nums[1]) = max(${s.nums[0]}, ${s.nums[1]}) = <span class="res">${filled[1]}</span></span>`;
+  else {
+    const skip = filled[i-1];
+    const take = filled[i-2] + s.nums[i];
+    expl = `<span class="mono">dp[${i}] = max(skip=${skip}, take dp[${i-2}]+nums[${i}]=${filled[i-2]}+${s.nums[i]}=${take}) = <span class="res">${filled[i]}</span></span>`;
+    if (take > skip) expl += ` — rob house ${i}`;
+    else expl += ` — skip house ${i}`;
+  }
+  if (i === s.n - 1) expl += `  — <span class="res">Max loot: ${filled[i]}</span>`;
+
+  const src = i >= 2 ? [i-1, i-2] : (i === 1 ? [0] : []);
+  $('rob-explain').innerHTML = expl;
+  $('rob-counter').textContent = `step ${i + 1} / ${s.n}`;
+  render1D('rob-array', s.dp, i, s.n-1, s.nums.map(v => `$${v}`), src, s.n-1);
+  return i < s.n - 1;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LCS
+// ═══════════════════════════════════════════════════════════════════════════════
+let lcsState = {};
+
+function initLCS() {
+  stopPlay('lcs');
+  const s1 = $('lcs-s1').value.toUpperCase().slice(0,8);
+  const s2 = $('lcs-s2').value.toUpperCase().slice(0,8);
+  const m = s1.length, n = s2.length;
+  const dp = Array.from({length: m+1}, () => new Array(n+1).fill(undefined));
+  // fill base cases
+  for (let i=0;i<=m;i++) dp[i][0] = 0;
+  for (let j=0;j<=n;j++) dp[0][j] = 0;
+  lcsState = { s1, s2, m, n, dp, step: -1, totalSteps: (m+1)*(n+1) };
+  $('lcs-explain').innerHTML = `Press <strong>Next step</strong> to begin. s1 = "<span class="mono">${s1}</span>", s2 = "<span class="mono">${s2}</span>"`;
+  $('lcs-counter').textContent = 'step 0';
+  render2D('lcs-table', dp, m, n, s1.split(''), s2.split(''), -1, -1, null, false);
+}
+
+function lcsStep(dir) {
+  const s = lcsState;
+  const total = (s.m + 1) * (s.n + 1);
+  const nextStep = s.step + dir;
+  if (nextStep < 0 || nextStep >= total) return false;
+  s.step = nextStep;
+
+  // rebuild dp up to step
+  const dp = Array.from({length: s.m+1}, () => new Array(s.n+1).fill(undefined));
+  for (let i=0;i<=s.m;i++) dp[i][0] = 0;
+  for (let j=0;j<=s.n;j++) dp[0][j] = 0;
+
+  let curI = 0, curJ = 0, stepCount = 0;
+  outer: for (let i=0;i<=s.m;i++) {
+    for (let j=0;j<=s.n;j++) {
+      if (i===0||j===0) {
+        if (stepCount === s.step) { curI=i; curJ=j; break outer; }
+        stepCount++;
+        continue;
+      }
+      if (s.s1[i-1] === s.s2[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+      else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+      if (stepCount === s.step) { curI=i; curJ=j; break outer; }
+      stepCount++;
+    }
+  }
+  s.dp = dp;
+
+  const isBase = curI === 0 || curJ === 0;
+  let expl = '';
+  let srcCells = [];
+  const isAnswer = curI === s.m && curJ === s.n;
+
+  if (isBase) {
+    expl = `Base case: <span class="mono">dp[${curI}][${curJ}] = 0</span> — empty prefix has LCS length 0`;
+  } else {
+    const match = s.s1[curI-1] === s.s2[curJ-1];
+    if (match) {
+      expl = `<span class="mono">s1[${curI-1}]='${s.s1[curI-1]}' == s2[${curJ-1}]='${s.s2[curJ-1]}'</span> — characters match! <span class="mono">dp[${curI}][${curJ}] = dp[${curI-1}][${curJ-1}] + 1 = <span class="res">${dp[curI][curJ]}</span></span>`;
+      srcCells = [[curI-1, curJ-1, 'row']];
+    } else {
+      const up = dp[curI-1][curJ], left = dp[curI][curJ-1];
+      expl = `<span class="mono">s1[${curI-1}]='${s.s1[curI-1]}' ≠ s2[${curJ-1}]='${s.s2[curJ-1]}'</span> — no match. <span class="mono">dp[${curI}][${curJ}] = max(up=${up}, left=${left}) = <span class="res">${dp[curI][curJ]}</span></span>`;
+      srcCells = [[curI-1, curJ, 'row'], [curI, curJ-1, 'col']];
+    }
+  }
+  if (isAnswer) expl += `  — <span class="res">LCS length: ${dp[s.m][s.n]}</span>`;
+
+  $('lcs-explain').innerHTML = expl;
+  $('lcs-counter').textContent = `step ${s.step + 1} / ${total}`;
+  render2D('lcs-table', s.dp, s.m, s.n, s.s1.split(''), s.s2.split(''), curI, curJ, srcCells, isAnswer);
+  return !isAnswer;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EDIT DISTANCE
+// ═══════════════════════════════════════════════════════════════════════════════
+let editState = {};
+
+function initEdit() {
+  stopPlay('edit');
+  const w1 = $('edit-w1').value.toLowerCase().slice(0, 7);
+  const w2 = $('edit-w2').value.toLowerCase().slice(0, 7);
+  const m = w1.length, n = w2.length;
+  const dp = Array.from({length: m+1}, () => new Array(n+1).fill(undefined));
+  for (let i=0;i<=m;i++) dp[i][0] = i;
+  for (let j=0;j<=n;j++) dp[0][j] = j;
+  editState = { w1, w2, m, n, dp, step: -1 };
+  $('edit-explain').innerHTML = `Press <strong>Next step</strong> to begin. Converting "<span class="mono">${w1}</span>" → "<span class="mono">${w2}</span>"`;
+  $('edit-counter').textContent = 'step 0';
+  render2D('edit-table', dp, m, n, w1.split(''), w2.split(''), -1, -1, null, false);
+}
+
+function editStep(dir) {
+  const s = editState;
+  const total = (s.m + 1) * (s.n + 1);
+  const nextStep = s.step + dir;
+  if (nextStep < 0 || nextStep >= total) return false;
+  s.step = nextStep;
+
+  const dp = Array.from({length: s.m+1}, () => new Array(s.n+1).fill(undefined));
+  for (let i=0;i<=s.m;i++) dp[i][0] = i;
+  for (let j=0;j<=s.n;j++) dp[0][j] = j;
+
+  let curI = 0, curJ = 0, stepCount = 0;
+  outer: for (let i=0;i<=s.m;i++) {
+    for (let j=0;j<=s.n;j++) {
+      if (i===0||j===0) {
+        if (stepCount === s.step) { curI=i; curJ=j; break outer; }
+        stepCount++;
+        continue;
+      }
+      if (s.w1[i-1] === s.w2[j-1]) dp[i][j] = dp[i-1][j-1];
+      else dp[i][j] = 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+      if (stepCount === s.step) { curI=i; curJ=j; break outer; }
+      stepCount++;
+    }
+  }
+  s.dp = dp;
+
+  const isBase = curI === 0 || curJ === 0;
+  let expl = '';
+  let srcCells = [];
+  const isAnswer = curI === s.m && curJ === s.n;
+
+  if (isBase) {
+    expl = `Base case: <span class="mono">dp[${curI}][${curJ}] = ${dp[curI][curJ]}</span> — ${curI === 0 ? `insert ${curJ} chars` : `delete ${curI} chars`}`;
+  } else {
+    const match = s.w1[curI-1] === s.w2[curJ-1];
+    if (match) {
+      expl = `<span class="mono">'${s.w1[curI-1]}' == '${s.w2[curJ-1]}'</span> — match! No operation needed. <span class="mono">dp[${curI}][${curJ}] = dp[${curI-1}][${curJ-1}] = <span class="res">${dp[curI][curJ]}</span></span>`;
+      srcCells = [[curI-1, curJ-1, 'row']];
+    } else {
+      const del = dp[curI-1][curJ], ins = dp[curI][curJ-1], rep = dp[curI-1][curJ-1];
+      const best = Math.min(del, ins, rep);
+      const op = best === rep ? 'replace' : best === del ? 'delete' : 'insert';
+      expl = `<span class="mono">'${s.w1[curI-1]}' ≠ '${s.w2[curJ-1]}'</span> — best op: <span class="hi">${op}</span>. <span class="mono">1 + min(del=${del}, ins=${ins}, rep=${rep}) = <span class="res">${dp[curI][curJ]}</span></span>`;
+      srcCells = [[curI-1, curJ, 'row'], [curI, curJ-1, 'col'], [curI-1, curJ-1, 'row']];
+    }
+  }
+  if (isAnswer) expl += `  — <span class="res">Min edits: ${dp[s.m][s.n]}</span>`;
+
+  $('edit-explain').innerHTML = expl;
+  $('edit-counter').textContent = `step ${s.step + 1} / ${total}`;
+  render2D('edit-table', s.dp, s.m, s.n, s.w1.split(''), s.w2.split(''), curI, curJ, srcCells, isAnswer);
+  return !isAnswer;
+}
+
+// ─── INIT ALL ─────────────────────────────────────────────────────────────────
+initFib();
+initClimb();
+initRob();
+initLCS();
+initEdit();
+</script>
+</body>
+</html>
