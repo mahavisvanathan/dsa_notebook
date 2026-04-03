@@ -4,28 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dynamic Programming — Visual Guide</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
   :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --surface2: #1a1a26;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #f0eee8;
-    --muted: rgba(240,238,232,0.45);
-    --hint: rgba(240,238,232,0.2);
-    --purple: #8b7cf8;
-    --purple-light: #b8aeff;
-    --purple-dim: rgba(139,124,248,0.15);
-    --teal: #2dd4a0;
-    --teal-dim: rgba(45,212,160,0.12);
-    --amber: #f5a623;
-    --amber-dim: rgba(245,166,35,0.12);
-    --coral: #f07855;
-    --coral-dim: rgba(240,120,85,0.12);
-    --green: #6bcb77;
-    --green-dim: rgba(107,203,119,0.12);
+    --bg: #0F1117;
+    --surface: #1A1D27;
+    --surface2: #242838;
+    --border: #2E3348;
+    --border2: #2E3348;
+    --text: #E8ECF4;
+    --muted: #8B92A8;
+    --hint: #555B73;
+    --purple: #A78BFA;
+    --purple-light: #C4B5FD;
+    --purple-dim: rgba(167,139,250,0.12);
+    --teal: #3ECFB4;
+    --teal-dim: rgba(62,207,180,0.12);
+    --amber: #FFBE59;
+    --amber-dim: rgba(255,190,89,0.12);
+    --coral: #FF6B6B;
+    --coral-dim: rgba(255,107,107,0.12);
+    --green: #34D399;
+    --green-dim: rgba(52,211,153,0.12);
     --cell-size: 52px;
   }
 
@@ -50,25 +51,25 @@
   }
 
   .eyebrow {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.15em;
-    color: var(--purple);
+    color: var(--teal);
     text-transform: uppercase;
     margin-bottom: 12px;
   }
 
   h1 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'JetBrains Mono', monospace;
     font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.02em;
     color: var(--text);
     margin-bottom: 12px;
   }
 
-  h1 span { color: var(--purple-light); }
+  h1 span { color: var(--teal); }
 
   .subtitle {
     font-size: 15px;
@@ -93,7 +94,7 @@
   }
 
   .ptab {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     padding: 7px 16px;
     border-radius: 4px;
@@ -105,8 +106,8 @@
     letter-spacing: 0.02em;
   }
 
-  .ptab:hover { color: var(--text); border-color: var(--purple); }
-  .ptab.active { background: var(--purple-dim); color: var(--purple-light); border-color: var(--purple); }
+  .ptab:hover { color: var(--text); border-color: var(--teal); }
+  .ptab.active { background: var(--teal-dim); color: var(--teal); border-color: var(--teal); }
 
   /* PROBLEM PANEL */
   .problem-panel { display: none; }
@@ -130,7 +131,7 @@
   }
 
   .meta-label {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     color: var(--hint);
@@ -145,7 +146,7 @@
   }
 
   .recurrence {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
     color: var(--teal);
     line-height: 2;
@@ -161,13 +162,13 @@
   }
 
   .input-row label {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     color: var(--muted);
   }
 
   .input-row input[type="text"] {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
     padding: 7px 12px;
     background: var(--surface);
@@ -179,26 +180,26 @@
     transition: border-color 0.15s;
   }
 
-  .input-row input[type="text"]:focus { border-color: var(--purple); }
+  .input-row input[type="text"]:focus { border-color: var(--teal); }
 
   .btn-rebuild {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     padding: 7px 14px;
-    background: var(--purple-dim);
-    border: 0.5px solid var(--purple);
+    background: var(--teal-dim);
+    border: 0.5px solid var(--teal);
     border-radius: 6px;
-    color: var(--purple-light);
+    color: var(--teal);
     cursor: pointer;
     transition: all 0.15s;
   }
-  .btn-rebuild:hover { background: rgba(139,124,248,0.25); }
+  .btn-rebuild:hover { background: rgba(62,207,180,0.22); }
 
   /* STEP EXPLANATION */
   .explain-box {
     background: var(--surface);
     border: 0.5px solid var(--border);
-    border-left: 3px solid var(--purple);
+    border-left: 3px solid #3ECFB4;
     border-radius: 0 8px 8px 0;
     padding: 12px 16px;
     margin-bottom: 1.25rem;
@@ -209,7 +210,7 @@
     transition: all 0.2s;
   }
 
-  .explain-box .mono { font-family: 'IBM Plex Mono', monospace; color: var(--teal); }
+  .explain-box .mono { font-family: 'JetBrains Mono', monospace; color: var(--teal); }
   .explain-box .hi { color: var(--amber); }
   .explain-box .res { color: var(--green); font-weight: 500; }
 
@@ -223,7 +224,7 @@
   }
 
   .ctrl-btn {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     padding: 6px 14px;
     border-radius: 6px;
@@ -236,10 +237,10 @@
 
   .ctrl-btn:hover { border-color: var(--border2); background: var(--surface2); }
   .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .ctrl-btn.primary { border-color: var(--purple); color: var(--purple-light); background: var(--purple-dim); }
+  .ctrl-btn.primary { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
 
   .step-counter {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: var(--hint);
     margin-left: auto;
@@ -262,7 +263,7 @@
   }
 
   .arr-idx {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     color: var(--hint);
     margin-bottom: 4px;
@@ -275,7 +276,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 15px;
     font-weight: 500;
     color: var(--muted);
@@ -286,12 +287,12 @@
 
   .arr-cell:not(:last-child) { border-right: none; }
   .arr-cell.filled { color: var(--text); background: var(--surface2); }
-  .arr-cell.current { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-light); box-shadow: 0 0 0 1px var(--purple); z-index: 1; }
+  .arr-cell.current { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); box-shadow: 0 0 12px rgba(62,207,180,0.4); z-index: 1; }
   .arr-cell.source { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); }
   .arr-cell.answer { background: var(--green-dim); border-color: var(--green); color: var(--green); }
 
   .arr-input-val {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     color: var(--amber);
     margin-top: 4px;
@@ -302,7 +303,7 @@
 
   table.dp2d {
     border-collapse: collapse;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
   }
 
@@ -315,6 +316,7 @@
     font-weight: 400;
     border: none;
     padding: 0 4px;
+    font-family: 'JetBrains Mono', monospace;
   }
 
   table.dp2d td {
@@ -330,13 +332,13 @@
   }
 
   table.dp2d td.filled { color: var(--text); background: var(--surface2); }
-  table.dp2d td.current { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-light); box-shadow: inset 0 0 0 1px var(--purple); }
-  table.dp2d td.source-row { background: var(--teal-dim); color: var(--teal); border-color: rgba(45,212,160,0.3); }
-  table.dp2d td.source-col { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,166,35,0.3); }
+  table.dp2d td.current { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); box-shadow: 0 0 12px rgba(62,207,180,0.4); }
+  table.dp2d td.source-row { background: var(--teal-dim); color: var(--teal); border-color: rgba(62,207,180,0.3); }
+  table.dp2d td.source-col { background: var(--amber-dim); color: var(--amber); border-color: rgba(255,190,89,0.3); }
   table.dp2d td.answer { background: var(--green-dim); border-color: var(--green); color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
 
   .row-header {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     color: var(--hint);
     text-align: right;
@@ -358,7 +360,7 @@
     gap: 6px;
     font-size: 11px;
     color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
   }
 
   .leg-swatch {
@@ -378,16 +380,16 @@
   }
 
   .badge {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     padding: 4px 10px;
     border-radius: 4px;
     border: 0.5px solid;
   }
 
-  .badge-time { background: var(--purple-dim); color: var(--purple-light); border-color: rgba(139,124,248,0.3); }
-  .badge-space { background: var(--teal-dim); color: var(--teal); border-color: rgba(45,212,160,0.3); }
-  .badge-pattern { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,166,35,0.3); }
+  .badge-time { background: var(--purple-dim); color: var(--purple-light); border-color: rgba(167,139,250,0.3); }
+  .badge-space { background: var(--teal-dim); color: var(--teal); border-color: rgba(62,207,180,0.3); }
+  .badge-pattern { background: var(--amber-dim); color: var(--amber); border-color: rgba(255,190,89,0.3); }
 
   /* PROBLEM DESCRIPTION */
   .problem-desc {
@@ -399,11 +401,10 @@
   }
 
   .prob-tag {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--amber);
     margin-bottom: 8px;
   }
 
@@ -415,7 +416,7 @@
   }
 
   .prob-statement strong {
-    color: var(--purple-light);
+    color: var(--teal);
     font-weight: 500;
   }
 
@@ -424,7 +425,7 @@
     border: 0.5px solid var(--border);
     border-radius: 6px;
     padding: 10px 14px;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     color: var(--muted);
     line-height: 1.8;
@@ -452,11 +453,52 @@
   /* AUTO-PLAY */
   .playing .ctrl-btn.primary { background: var(--coral-dim); border-color: var(--coral); color: var(--coral); }
 
+  /* NOTES PANEL */
+  .notes-panel {
+    margin-top: 1.5rem;
+    background: #1A1D27;
+    border: 1px solid #2E3348;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .notes-panel summary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #555B73;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .notes-panel summary:hover { color: #8B92A8; }
+  .notes-panel .notes-body {
+    padding: 0 16px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .notes-row {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .notes-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #555B73;
+    margin-bottom: 4px;
+  }
+  .notes-value { color: #8B92A8; }
+  .notes-value strong { color: #E8ECF4; font-weight: 500; }
+
   /* FOOTER */
   footer {
     text-align: center;
     padding: 2rem;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: var(--hint);
     border-top: 0.5px solid var(--border);
@@ -468,8 +510,8 @@
 <body>
 
 <header>
-  <div class="eyebrow">Interview prep — dynamic programming</div>
-  <h1>Visualize the <span>subproblem</span></h1>
+  <div class="eyebrow">Algorithm Visualizations — Dynamic Programming</div>
+  <h1>Fill the <span>table</span></h1>
   <p class="subtitle">Step through five classic DP problems cell by cell. The key to DP is naming the subproblem before you write any code — the table fills itself once you have that.</p>
 </header>
 
@@ -485,7 +527,7 @@
   <!-- FIB -->
   <div class="problem-panel active" id="panel-fib">
     <div class="problem-desc">
-      <div class="prob-tag">leetcode 509 — easy</div>
+      <div class="prob-tag" style="color:#FFBE59">1-D DP · leetcode 509 · easy</div>
       <p class="prob-statement">
         The Fibonacci sequence is defined such that each number is the sum of the two preceding ones, starting from 0 and 1.
         Given <strong>n</strong>, return <strong>F(n)</strong>.<br>
@@ -501,7 +543,7 @@
     <div class="meta-row">
       <div class="meta-card">
         <div class="meta-label">Subproblem</div>
-        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i]</code> = the i-th Fibonacci number</div>
+        <div class="meta-value"><code style="font-family:'JetBrains Mono',monospace;color:var(--teal)">dp[i]</code> = the i-th Fibonacci number</div>
       </div>
       <div class="meta-card">
         <div class="meta-label">Recurrence</div>
@@ -524,7 +566,7 @@
     <div class="legend">
       <div class="leg-item"><div class="leg-swatch" style="background:var(--surface2);border-color:var(--border2)"></div>filled</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>source cells</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>current</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
     </div>
     <div class="array-viz" id="fib-array"></div>
@@ -533,12 +575,33 @@
       <span class="badge badge-space">space: O(n) → O(1) optimized</span>
       <span class="badge badge-pattern">pattern: linear 1D DP</span>
     </div>
+    <details class="notes-panel">
+      <summary>Notes</summary>
+      <div class="notes-body">
+        <div class="notes-row">
+          <div class="notes-label">Key Insight</div>
+          <div class="notes-value">Every value depends only on the two before it. The table is just the recurrence written out flat.</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Complexity</div>
+          <div class="notes-value"><strong>Time:</strong> O(n) | <strong>Space:</strong> O(n) → O(1) with two variables</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Pattern</div>
+          <div class="notes-value">Linear 1-D DP</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Edge Cases</div>
+          <div class="notes-value">n=0 → 0; n=1 → 1; large n may overflow 32-bit int</div>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- CLIMB -->
   <div class="problem-panel" id="panel-climb">
     <div class="problem-desc">
-      <div class="prob-tag">leetcode 70 — easy</div>
+      <div class="prob-tag" style="color:#FFBE59">1-D DP · leetcode 70 · easy</div>
       <p class="prob-statement">
         You are climbing a staircase with <strong>n</strong> steps. Each time you can climb <strong>1 or 2 steps</strong>.
         In how many <strong>distinct ways</strong> can you reach the top?<br>
@@ -555,7 +618,7 @@
     <div class="meta-row">
       <div class="meta-card">
         <div class="meta-label">Subproblem</div>
-        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i]</code> = number of ways to reach stair i</div>
+        <div class="meta-value"><code style="font-family:'JetBrains Mono',monospace;color:var(--teal)">dp[i]</code> = number of ways to reach stair i</div>
       </div>
       <div class="meta-card">
         <div class="meta-label">Recurrence</div>
@@ -578,7 +641,7 @@
     <div class="legend">
       <div class="leg-item"><div class="leg-swatch" style="background:var(--surface2);border-color:var(--border2)"></div>filled</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>source cells</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>current</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
     </div>
     <div class="array-viz" id="climb-array"></div>
@@ -587,12 +650,33 @@
       <span class="badge badge-space">space: O(n) → O(1) optimized</span>
       <span class="badge badge-pattern">pattern: linear 1D DP</span>
     </div>
+    <details class="notes-panel">
+      <summary>Notes</summary>
+      <div class="notes-body">
+        <div class="notes-row">
+          <div class="notes-label">Key Insight</div>
+          <div class="notes-value">Identical recurrence to Fibonacci, but the reasoning differs — you arrive at step i from i-1 or i-2.</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Complexity</div>
+          <div class="notes-value"><strong>Time:</strong> O(n) | <strong>Space:</strong> O(n) → O(1)</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Pattern</div>
+          <div class="notes-value">Linear 1-D DP</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Edge Cases</div>
+          <div class="notes-value">n=1 → 1 way; n=2 → 2 ways</div>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- ROB -->
   <div class="problem-panel" id="panel-rob">
     <div class="problem-desc">
-      <div class="prob-tag">leetcode 198 — medium</div>
+      <div class="prob-tag" style="color:#FFBE59">1-D DP · leetcode 198 · medium</div>
       <p class="prob-statement">
         You are a robber planning to rob houses along a street. Each house has a certain amount of money.
         Adjacent houses have security alarms connected — if you rob <strong>two adjacent houses</strong>, the alarm triggers.
@@ -609,7 +693,7 @@
     <div class="meta-row">
       <div class="meta-card">
         <div class="meta-label">Subproblem</div>
-        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i]</code> = max money robbing houses 0..i</div>
+        <div class="meta-value"><code style="font-family:'JetBrains Mono',monospace;color:var(--teal)">dp[i]</code> = max money robbing houses 0..i</div>
       </div>
       <div class="meta-card">
         <div class="meta-label">Recurrence</div>
@@ -632,7 +716,7 @@
     <div class="legend">
       <div class="leg-item"><div class="leg-swatch" style="background:var(--surface2);border-color:var(--border2)"></div>filled</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>source cells</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>current</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
     </div>
     <div class="array-viz" id="rob-array"></div>
@@ -641,12 +725,33 @@
       <span class="badge badge-space">space: O(n) → O(1) optimized</span>
       <span class="badge badge-pattern">pattern: decision at each step</span>
     </div>
+    <details class="notes-panel">
+      <summary>Notes</summary>
+      <div class="notes-body">
+        <div class="notes-row">
+          <div class="notes-label">Key Insight</div>
+          <div class="notes-value">At each house, the choice is binary: rob it (skip previous) or skip it (carry best so far). No lookahead needed.</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Complexity</div>
+          <div class="notes-value"><strong>Time:</strong> O(n) | <strong>Space:</strong> O(n) → O(1)</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Pattern</div>
+          <div class="notes-value">Decision at each step (1-D DP)</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Edge Cases</div>
+          <div class="notes-value">Empty array → 0; single house → that value; two houses → max of both</div>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- LCS -->
   <div class="problem-panel" id="panel-lcs">
     <div class="problem-desc">
-      <div class="prob-tag">leetcode 1143 — medium</div>
+      <div class="prob-tag" style="color:#FF6B6B">2-D DP · leetcode 1143 · medium</div>
       <p class="prob-statement">
         Given two strings <strong>s1</strong> and <strong>s2</strong>, return the length of their
         <strong>longest common subsequence (LCS)</strong>. A subsequence is derived from a string by deleting some
@@ -663,7 +768,7 @@
     <div class="meta-row">
       <div class="meta-card">
         <div class="meta-label">Subproblem</div>
-        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i][j]</code> = LCS length of s1[0..i-1] and s2[0..j-1]</div>
+        <div class="meta-value"><code style="font-family:'JetBrains Mono',monospace;color:var(--teal)">dp[i][j]</code> = LCS length of s1[0..i-1] and s2[0..j-1]</div>
       </div>
       <div class="meta-card">
         <div class="meta-label">Recurrence</div>
@@ -688,7 +793,7 @@
     <div class="legend">
       <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>same row (i-1)</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--amber-dim);border-color:var(--amber)"></div>same col (j-1)</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>current</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
     </div>
     <div class="table-scroll" id="lcs-table"></div>
@@ -697,12 +802,33 @@
       <span class="badge badge-space">space: O(m·n)</span>
       <span class="badge badge-pattern">pattern: 2D match/skip</span>
     </div>
+    <details class="notes-panel">
+      <summary>Notes</summary>
+      <div class="notes-body">
+        <div class="notes-row">
+          <div class="notes-label">Key Insight</div>
+          <div class="notes-value">When characters match, extend the diagonal. When they don't, take the better of skipping one character from either string.</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Complexity</div>
+          <div class="notes-value"><strong>Time:</strong> O(m·n) | <strong>Space:</strong> O(m·n) → O(min(m,n)) with rolling row</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Pattern</div>
+          <div class="notes-value">2-D match/skip DP</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Edge Cases</div>
+          <div class="notes-value">Either string empty → 0; identical strings → full length; no common chars → 0</div>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- EDIT -->
   <div class="problem-panel" id="panel-edit">
     <div class="problem-desc">
-      <div class="prob-tag">leetcode 72 — hard</div>
+      <div class="prob-tag" style="color:#FF6B6B">2-D DP · leetcode 72 · hard</div>
       <p class="prob-statement">
         Given two words <strong>word1</strong> and <strong>word2</strong>, return the <strong>minimum number of operations</strong>
         to convert word1 into word2. You have three operations, each costing 1:
@@ -720,7 +846,7 @@
     <div class="meta-row">
       <div class="meta-card">
         <div class="meta-label">Subproblem</div>
-        <div class="meta-value"><code style="font-family:'IBM Plex Mono',monospace;color:var(--teal)">dp[i][j]</code> = min edits to convert word1[0..i-1] → word2[0..j-1]</div>
+        <div class="meta-value"><code style="font-family:'JetBrains Mono',monospace;color:var(--teal)">dp[i][j]</code> = min edits to convert word1[0..i-1] → word2[0..j-1]</div>
       </div>
       <div class="meta-card">
         <div class="meta-label">Recurrence</div>
@@ -745,7 +871,7 @@
     <div class="legend">
       <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>delete (row above)</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--amber-dim);border-color:var(--amber)"></div>insert (col left)</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--purple-dim);border-color:var(--purple)"></div>current</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>current</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
     </div>
     <div class="table-scroll" id="edit-table"></div>
@@ -754,11 +880,32 @@
       <span class="badge badge-space">space: O(m·n)</span>
       <span class="badge badge-pattern">pattern: 2D min-cost transformation</span>
     </div>
+    <details class="notes-panel">
+      <summary>Notes</summary>
+      <div class="notes-body">
+        <div class="notes-row">
+          <div class="notes-label">Key Insight</div>
+          <div class="notes-value">If characters match it's free (take diagonal). Otherwise pay 1 and pick the cheapest of insert, delete, or replace.</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Complexity</div>
+          <div class="notes-value"><strong>Time:</strong> O(m·n) | <strong>Space:</strong> O(m·n) → O(min(m,n))</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Pattern</div>
+          <div class="notes-value">2-D min-cost transformation DP</div>
+        </div>
+        <div class="notes-row">
+          <div class="notes-label">Edge Cases</div>
+          <div class="notes-value">One string empty → length of other; identical strings → 0</div>
+        </div>
+      </div>
+    </details>
   </div>
 
 </main>
 
-<footer>dynamic programming visualizer &mdash; step through, not memorize</footer>
+<footer>dynamic programming visualizer &mdash; fill the table, not your memory</footer>
 
 <script>
 const $ = id => document.getElementById(id);

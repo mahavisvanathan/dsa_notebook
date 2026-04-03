@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dijkstra's Shortest Path — Algorithm Visualizer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0F1117;
+      --surface:   #1A1D27;
+      --surf-alt:  #242838;
+      --border:    #2E3348;
+      --text:      #E8ECF4;
+      --text-sec:  #8B92A8;
+      --text-dim:  #555B73;
+      --teal:      #3ECFB4;
+      --coral:     #FF6B6B;
+      --amber:     #FFBE59;
+      --blue:      #5B9CF6;
+      --purple:    #A78BFA;
+      --green:     #34D399;
+      --error:     #F87171;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #0F1117;
+      color: #E8ECF4;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .page-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Header ── */
+    header { margin-bottom: 32px; }
+
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #A78BFA;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.15;
+      margin-bottom: 12px;
+      color: #E8ECF4;
+    }
+
+    h1 span { color: #A78BFA; }
+
+    .subtitle {
+      font-size: 15px;
+      color: #8B92A8;
+      font-weight: 300;
+      max-width: 680px;
+      line-height: 1.7;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555B73;
+      margin-bottom: 14px;
+    }
+
+    /* ── Problem Description ── */
+    .problem-desc {
+      margin-bottom: 20px;
+    }
+
+    .prob-tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #A78BFA;
+      background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.25);
+      border-radius: 4px;
+      padding: 3px 10px;
+      margin-bottom: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    .problem-desc p {
+      color: #8B92A8;
+      font-size: 13.5px;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+
+    .problem-desc p:last-child { margin-bottom: 0; }
+
+    .example-box {
+      background: #242838;
+      border: 1px solid #2E3348;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 14px;
+    }
+
+    .example-box .ex-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555B73;
+      margin-bottom: 6px;
+    }
+
+    .example-box p {
+      font-size: 13px;
+      color: #8B92A8;
+      margin-bottom: 0;
+    }
+
+    .example-box strong { color: #3ECFB4; }
+
+    /* ── Meta row ── */
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .meta-row { grid-template-columns: 1fr; }
+    }
+
+    .meta-row p {
+      color: #8B92A8;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .code-block {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #3ECFB4;
+      background: #242838;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 8px;
+      white-space: pre;
+    }
+
+    /* ── Explain box ── */
+    .explain-box {
+      border-left: 3px solid #3ECFB4;
+      background: rgba(62,207,180,0.05);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+      color: #E8ECF4;
+      min-height: 46px;
+      line-height: 1.7;
+    }
+
+    /* ── Controls ── */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: 1px solid #2E3348;
+      background: #1A1D27;
+      color: #E8ECF4;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #242838; border-color: #3ECFB4; color: #3ECFB4; }
+    .btn:active { background: rgba(62,207,180,0.1); }
+
+    .btn-play {
+      background: rgba(62,207,180,0.12);
+      border-color: #3ECFB4;
+      color: #3ECFB4;
+    }
+
+    .btn-play:hover {
+      background: rgba(62,207,180,0.22);
+      color: #3ECFB4;
+    }
+
+    .btn-reset {
+      border-color: rgba(255,107,107,0.4);
+      color: #FF6B6B;
+    }
+
+    .btn-reset:hover {
+      background: rgba(255,107,107,0.08);
+      border-color: #FF6B6B;
+      color: #FF6B6B;
+    }
+
+    .step-counter {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #555B73;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: #8B92A8;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border-width: 2px;
+      border-style: solid;
+      flex-shrink: 0;
+    }
+
+    .swatch-unvisited { background: #1A1D27; border-color: #2E3348; }
+    .swatch-queued    { background: rgba(255,190,89,0.14); border-color: #FFBE59; }
+    .swatch-current   { background: rgba(62,207,180,0.18); border-color: #3ECFB4; }
+    .swatch-visited   { background: rgba(52,211,153,0.14); border-color: #34D399; }
+
+    .edge-swatch {
+      width: 24px;
+      height: 3px;
+      border-radius: 2px;
+      background: #34D399;
+    }
+
+    /* ── Main viz layout ── */
+    .viz-layout {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .viz-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── SVG ── */
+    .svg-card {
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      max-width: 640px;
+      display: block;
+    }
+
+    /* ── SVG element states ── */
+    .state-unvisited { fill: #1A1D27; stroke: #2E3348; stroke-width: 2; }
+    .state-queued    { fill: rgba(255,190,89,0.14); stroke: #FFBE59; stroke-width: 2; }
+    .state-current   {
+      fill: rgba(62,207,180,0.18);
+      stroke: #3ECFB4;
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 8px rgba(62,207,180,0.45));
+    }
+    .state-visited   { fill: rgba(52,211,153,0.14); stroke: #34D399; stroke-width: 2; }
+    .state-done      { fill: rgba(52,211,153,0.14); stroke: #34D399; stroke-width: 2; }
+
+    .edge-default  { stroke: rgba(255,255,255,0.1); stroke-width: 1.5; }
+    .edge-relaxing { stroke: #FFBE59; stroke-width: 2.5; }
+    .edge-improved { stroke: #3ECFB4; stroke-width: 2.5; }
+    .edge-path     { stroke: #34D399; stroke-width: 2.5; }
+
+    .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      fill: #E8ECF4;
+      dominant-baseline: central;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .dist-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      dominant-baseline: central;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .weight-bg {
+      fill: #1A1D27;
+      rx: 4;
+    }
+
+    .weight-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      fill: #555B73;
+      dominant-baseline: central;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    /* ── Side panel ── */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── Distance table ── */
+    .dist-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .dist-table th {
+      text-align: left;
+      color: #555B73;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0 6px 8px;
+      border-bottom: 1px solid #2E3348;
+    }
+
+    .dist-table td {
+      padding: 6px 6px;
+      color: #8B92A8;
+      border-bottom: 1px solid rgba(46,51,72,0.5);
+    }
+
+    .dist-table tr:last-child td { border-bottom: none; }
+
+    .dist-table .node-col { font-weight: 700; color: #E8ECF4; }
+    .dist-table .dist-col { }
+    .dist-table .via-col  { color: #555B73; }
+
+    .row-current td { background: rgba(62,207,180,0.07); }
+    .row-current .node-col { color: #3ECFB4; }
+    .row-current .dist-col { color: #3ECFB4; }
+
+    .row-visited td { background: rgba(52,211,153,0.05); }
+    .row-visited .dist-col { color: #34D399; }
+
+    .row-queued .dist-col { color: #FFBE59; }
+
+    /* ── PQ list ── */
+    .pq-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pq-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid #2E3348;
+      background: #242838;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #8B92A8;
+    }
+
+    .pq-item.pq-min {
+      border-color: #FFBE59;
+      background: rgba(255,190,89,0.08);
+      color: #FFBE59;
+    }
+
+    .pq-item .pq-node { font-weight: 700; color: #E8ECF4; }
+    .pq-item.pq-min .pq-node { color: #FFBE59; }
+    .pq-item .pq-dist {}
+    .pq-empty {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #555B73;
+      padding: 8px 4px;
+    }
+
+    /* ── Complexity badges ── */
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-purple { background: rgba(167,139,250,0.12); color: #A78BFA; border: 1px solid rgba(167,139,250,0.25); }
+    .badge-teal   { background: rgba(62,207,180,0.10); color: #3ECFB4; border: 1px solid rgba(62,207,180,0.22); }
+    .badge-amber  { background: rgba(255,190,89,0.10); color: #FFBE59; border: 1px solid rgba(255,190,89,0.22); }
+
+    /* ── Notes panel ── */
+    .notes-panel {
+      margin-bottom: 32px;
+    }
+
+    details {
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    summary {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #555B73;
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: '▶  '; color: #3ECFB4; font-size: 10px; }
+    details[open] summary::before { content: '▼  '; }
+    summary:hover { color: #8B92A8; }
+
+    .notes-content {
+      padding: 0 20px 18px;
+      border-top: 1px solid #2E3348;
+    }
+
+    .notes-content dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 16px;
+      margin-top: 14px;
+    }
+
+    .notes-content dt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #3ECFB4;
+      white-space: nowrap;
+      padding-top: 1px;
+    }
+
+    .notes-content dd {
+      font-size: 13px;
+      color: #8B92A8;
+      line-height: 1.65;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #555B73;
+      letter-spacing: 0.1em;
+      padding-top: 16px;
+      border-top: 1px solid #2E3348;
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Header -->
+  <header>
+    <div class="eyebrow">Algorithm Visualizations — Graph Algorithms</div>
+    <h1>Shortest <span>Path</span></h1>
+    <p class="subtitle">Step through Dijkstra's algorithm node by node. Watch the priority queue drive exploration and distances lock in, closest first.</p>
+  </header>
+
+  <!-- Problem description -->
+  <div class="card problem-desc">
+    <div class="prob-tag">Graphs · Classic Algorithm · Greedy + Min-Heap</div>
+    <p>
+      Given a weighted, undirected graph with non-negative edge weights and a source node S,
+      find the shortest distance from S to every other node.
+    </p>
+    <p>
+      <strong style="color:#E8ECF4;">Greedy insight:</strong> always process the closest unvisited node next.
+      Once a node is extracted from the min-heap, its distance is <em style="color:#3ECFB4;">final</em> — no shorter
+      path can exist, because all remaining paths pass through nodes that are at least as far away.
+    </p>
+    <div class="example-box">
+      <div class="ex-label">Greedy Guarantee</div>
+      <p>
+        When node <strong>u</strong> is popped with distance <strong>d</strong>, every node remaining in the
+        queue has distance ≥ d. Any alternative path to u would route through one of those nodes,
+        making its total length ≥ d. So d is already optimal.
+      </p>
+    </div>
+  </div>
+
+  <!-- Meta row -->
+  <div class="meta-row">
+    <div class="card">
+      <div class="card-title">Core Invariant</div>
+      <p>When a node is popped from the min-heap, its distance is the true shortest path. It will <strong style="color:#3ECFB4;">never</strong> be updated again — this is the key property that makes Dijkstra's correct and efficient.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Edge Relaxation</div>
+      <div class="code-block">if dist[u] + w(u,v) &lt; dist[v]:
+  dist[v] = dist[u] + w(u,v)
+  prev[v]  = u</div>
+    </div>
+  </div>
+
+  <!-- Explain box -->
+  <div class="explain-box" id="explain">Initialize: dist[S] = 0, all others = ∞. Add S to the priority queue.</div>
+
+  <!-- Controls -->
+  <div class="controls-row">
+    <button class="btn" id="btn-prev" onclick="step(-1)">← Prev</button>
+    <button class="btn btn-play" id="btn-play" onclick="togglePlay()">▶ Play</button>
+    <button class="btn" id="btn-next" onclick="step(1)">Next →</button>
+    <button class="btn btn-reset" onclick="resetViz()">↺ Reset</button>
+    <span class="step-counter" id="step-counter">Step 1 / 23</span>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="swatch swatch-unvisited"></div>
+      <span>Unvisited</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch swatch-queued"></div>
+      <span>In queue</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch swatch-current"></div>
+      <span>Current</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch swatch-visited"></div>
+      <span>Visited / Final</span>
+    </div>
+    <div class="legend-item">
+      <div class="edge-swatch"></div>
+      <span>Shortest path edge</span>
+    </div>
+  </div>
+
+  <!-- Viz layout -->
+  <div class="viz-layout">
+
+    <!-- SVG graph -->
+    <div class="svg-card">
+      <svg viewBox="0 0 640 370" xmlns="http://www.w3.org/2000/svg">
+        <!-- Edges -->
+        <line id="el-S-A" class="edge-default" x1="85" y1="185" x2="245" y2="80"/>
+        <line id="el-S-B" class="edge-default" x1="85" y1="185" x2="245" y2="290"/>
+        <line id="el-A-B" class="edge-default" x1="245" y1="80" x2="245" y2="290"/>
+        <line id="el-A-C" class="edge-default" x1="245" y1="80" x2="415" y2="80"/>
+        <line id="el-B-C" class="edge-default" x1="245" y1="290" x2="415" y2="80"/>
+        <line id="el-B-D" class="edge-default" x1="245" y1="290" x2="415" y2="290"/>
+        <line id="el-C-D" class="edge-default" x1="415" y1="80" x2="415" y2="290"/>
+        <line id="el-C-E" class="edge-default" x1="415" y1="80" x2="565" y2="185"/>
+        <line id="el-D-E" class="edge-default" x1="415" y1="290" x2="565" y2="185"/>
+
+        <!-- Edge weight labels -->
+        <!-- S-A weight at (163, 124) -->
+        <rect x="149" y="113" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="163" y="121" class="weight-text">4</text>
+
+        <!-- S-B weight at (163, 240) -->
+        <rect x="149" y="229" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="163" y="237" class="weight-text">2</text>
+
+        <!-- A-B weight at (261, 185) -->
+        <rect x="247" y="174" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="261" y="182" class="weight-text">1</text>
+
+        <!-- A-C weight at (330, 68) -->
+        <rect x="316" y="57" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="330" y="65" class="weight-text">5</text>
+
+        <!-- B-C weight at (330, 185) -->
+        <rect x="316" y="174" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="330" y="182" class="weight-text">8</text>
+
+        <!-- B-D weight at (330, 278) -->
+        <rect x="316" y="267" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="330" y="275" class="weight-text">2</text>
+
+        <!-- C-D weight at (431, 185) -->
+        <rect x="417" y="174" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="431" y="182" class="weight-text">2</text>
+
+        <!-- C-E weight at (489, 124) -->
+        <rect x="475" y="113" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="489" y="121" class="weight-text">6</text>
+
+        <!-- D-E weight at (489, 240) -->
+        <rect x="475" y="229" width="28" height="16" rx="3" fill="#0F1117"/>
+        <text x="489" y="237" class="weight-text">1</text>
+
+        <!-- Nodes -->
+        <!-- S -->
+        <circle id="nd-S" class="state-unvisited" cx="85" cy="185" r="26"/>
+        <text x="85" y="185" class="node-label">S</text>
+        <text id="dist-S" x="85" y="205" class="dist-label" fill="#555B73" dy="9">0</text>
+
+        <!-- A -->
+        <circle id="nd-A" class="state-unvisited" cx="245" cy="80" r="26"/>
+        <text x="245" y="80" class="node-label">A</text>
+        <text id="dist-A" x="245" y="80" class="dist-label" fill="#555B73" dy="9" dx="0">∞</text>
+
+        <!-- B -->
+        <circle id="nd-B" class="state-unvisited" cx="245" cy="290" r="26"/>
+        <text x="245" y="290" class="node-label">B</text>
+        <text id="dist-B" x="245" y="290" class="dist-label" fill="#555B73" dy="9">∞</text>
+
+        <!-- C -->
+        <circle id="nd-C" class="state-unvisited" cx="415" cy="80" r="26"/>
+        <text x="415" y="80" class="node-label">C</text>
+        <text id="dist-C" x="415" y="80" class="dist-label" fill="#555B73" dy="9">∞</text>
+
+        <!-- D -->
+        <circle id="nd-D" class="state-unvisited" cx="415" cy="290" r="26"/>
+        <text x="415" y="290" class="node-label">D</text>
+        <text id="dist-D" x="415" y="290" class="dist-label" fill="#555B73" dy="9">∞</text>
+
+        <!-- E -->
+        <circle id="nd-E" class="state-unvisited" cx="565" cy="185" r="26"/>
+        <text x="565" y="185" class="node-label">E</text>
+        <text id="dist-E" x="565" y="185" class="dist-label" fill="#555B73" dy="9">∞</text>
+      </svg>
+    </div>
+
+    <!-- Side panel -->
+    <div class="side-panel">
+
+      <!-- Distances table -->
+      <div class="card">
+        <div class="card-title">Distances from S</div>
+        <table class="dist-table">
+          <thead>
+            <tr>
+              <th>Node</th>
+              <th>Dist</th>
+              <th>Via</th>
+            </tr>
+          </thead>
+          <tbody id="dist-tbody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Priority queue -->
+      <div class="card">
+        <div class="card-title">Min-Heap (priority queue)</div>
+        <ul class="pq-list" id="pq-list">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Complexity badges -->
+  <div class="badge-row">
+    <span class="badge badge-purple">time: O((V + E) log V)</span>
+    <span class="badge badge-teal">space: O(V)</span>
+    <span class="badge badge-amber">pattern: greedy + min-heap</span>
+  </div>
+
+  <!-- Notes panel -->
+  <div class="notes-panel">
+    <details>
+      <summary>Implementation Notes</summary>
+      <div class="notes-content">
+        <dl>
+          <dt>Key Insight</dt>
+          <dd>Once extracted from the min-heap with distance d, a node's distance is proven optimal — any alternative path would go through an unvisited node v where dist[v] ≥ d, making it at least as long.</dd>
+
+          <dt>Time</dt>
+          <dd>O((V + E) log V) with a binary heap</dd>
+
+          <dt>Space</dt>
+          <dd>O(V) for dist[] and prev[] arrays</dd>
+
+          <dt>Pattern</dt>
+          <dd>Greedy + Min-Heap (Priority Queue)</dd>
+
+          <dt>Constraint</dt>
+          <dd>Edge weights must be non-negative. Use Bellman-Ford for negative weights.</dd>
+
+          <dt>Edge Cases</dt>
+          <dd>Disconnected node → distance remains ∞; negative weights → algorithm produces wrong results.</dd>
+        </dl>
+      </div>
+    </details>
+  </div>
+
+  <!-- Footer -->
+  <footer>graph algorithms visualizer — shortest path, guaranteed</footer>
+
+</div>
+
+<script>
+  // ─── Step data ───────────────────────────────────────────────────────────────
+  const STEPS = [
+    // Step 1: Init
+    {
+      dist: {S:0, A:null, B:null, C:null, D:null, E:null},
+      prev: {S:null, A:null, B:null, C:null, D:null, E:null},
+      visited: [],
+      inQueue: ['S'],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: [],
+      explanation: 'Initialize: dist[S] = 0, all others = ∞. Add S to the priority queue.',
+      phase: 'init'
+    },
+    // Step 2: Extract S
+    {
+      dist: {S:0, A:null, B:null, C:null, D:null, E:null},
+      prev: {S:null, A:null, B:null, C:null, D:null, E:null},
+      visited: [],
+      inQueue: [],
+      currentNode: 'S',
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: [],
+      explanation: 'Extract S (distance 0) — the closest unvisited node. Its distance is now final.',
+      phase: 'extract'
+    },
+    // Step 3: Relax S→A
+    {
+      dist: {S:0, A:4, B:null, C:null, D:null, E:null},
+      prev: {S:null, A:'S', B:null, C:null, D:null, E:null},
+      visited: [],
+      inQueue: ['A'],
+      currentNode: 'S',
+      relaxingEdge: 'S-A',
+      relaxingImproved: true,
+      pathEdges: [],
+      explanation: 'Relax S→A: 0 + 4 = 4 < ∞. Set dist[A] = 4.',
+      phase: 'relax'
+    },
+    // Step 4: Relax S→B
+    {
+      dist: {S:0, A:4, B:2, C:null, D:null, E:null},
+      prev: {S:null, A:'S', B:'S', C:null, D:null, E:null},
+      visited: [],
+      inQueue: ['A', 'B'],
+      currentNode: 'S',
+      relaxingEdge: 'S-B',
+      relaxingImproved: true,
+      pathEdges: [],
+      explanation: 'Relax S→B: 0 + 2 = 2 < ∞. Set dist[B] = 2.',
+      phase: 'relax'
+    },
+    // Step 5: Mark S visited
+    {
+      dist: {S:0, A:4, B:2, C:null, D:null, E:null},
+      prev: {S:null, A:'S', B:'S', C:null, D:null, E:null},
+      visited: ['S'],
+      inQueue: ['A', 'B'],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: [],
+      explanation: 'Lock in S. Shortest distance 0 confirmed.',
+      phase: 'mark'
+    },
+    // Step 6: Extract B
+    {
+      dist: {S:0, A:4, B:2, C:null, D:null, E:null},
+      prev: {S:null, A:'S', B:'S', C:null, D:null, E:null},
+      visited: ['S'],
+      inQueue: ['A'],
+      currentNode: 'B',
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B'],
+      explanation: 'Extract B (distance 2) — closest in queue. Distance is now final.',
+      phase: 'extract'
+    },
+    // Step 7: Relax B→A
+    {
+      dist: {S:0, A:3, B:2, C:null, D:null, E:null},
+      prev: {S:null, A:'B', B:'S', C:null, D:null, E:null},
+      visited: ['S'],
+      inQueue: ['A'],
+      currentNode: 'B',
+      relaxingEdge: 'A-B',
+      relaxingImproved: true,
+      pathEdges: ['S-B'],
+      explanation: 'Relax B→A (via edge A–B): 2 + 1 = 3 < 4. Update dist[A] = 3.',
+      phase: 'relax'
+    },
+    // Step 8: Relax B→C
+    {
+      dist: {S:0, A:3, B:2, C:10, D:null, E:null},
+      prev: {S:null, A:'B', B:'S', C:'B', D:null, E:null},
+      visited: ['S'],
+      inQueue: ['A', 'C'],
+      currentNode: 'B',
+      relaxingEdge: 'B-C',
+      relaxingImproved: true,
+      pathEdges: ['S-B'],
+      explanation: 'Relax B→C: 2 + 8 = 10 < ∞. Set dist[C] = 10.',
+      phase: 'relax'
+    },
+    // Step 9: Relax B→D
+    {
+      dist: {S:0, A:3, B:2, C:10, D:4, E:null},
+      prev: {S:null, A:'B', B:'S', C:'B', D:'B', E:null},
+      visited: ['S'],
+      inQueue: ['A', 'C', 'D'],
+      currentNode: 'B',
+      relaxingEdge: 'B-D',
+      relaxingImproved: true,
+      pathEdges: ['S-B'],
+      explanation: 'Relax B→D: 2 + 2 = 4 < ∞. Set dist[D] = 4.',
+      phase: 'relax'
+    },
+    // Step 10: Mark B visited
+    {
+      dist: {S:0, A:3, B:2, C:10, D:4, E:null},
+      prev: {S:null, A:'B', B:'S', C:'B', D:'B', E:null},
+      visited: ['S', 'B'],
+      inQueue: ['A', 'C', 'D'],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B'],
+      explanation: 'Lock in B. Shortest distance 2 confirmed.',
+      phase: 'mark'
+    },
+    // Step 11: Extract A
+    {
+      dist: {S:0, A:3, B:2, C:10, D:4, E:null},
+      prev: {S:null, A:'B', B:'S', C:'B', D:'B', E:null},
+      visited: ['S', 'B'],
+      inQueue: ['C', 'D'],
+      currentNode: 'A',
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B'],
+      explanation: 'Extract A (distance 3). Distance is now final.',
+      phase: 'extract'
+    },
+    // Step 12: Relax A→C
+    {
+      dist: {S:0, A:3, B:2, C:8, D:4, E:null},
+      prev: {S:null, A:'B', B:'S', C:'A', D:'B', E:null},
+      visited: ['S', 'B'],
+      inQueue: ['C', 'D'],
+      currentNode: 'A',
+      relaxingEdge: 'A-C',
+      relaxingImproved: true,
+      pathEdges: ['S-B', 'A-B'],
+      explanation: 'Relax A→C: 3 + 5 = 8 < 10. Update dist[C] = 8.',
+      phase: 'relax'
+    },
+    // Step 13: Mark A visited
+    {
+      dist: {S:0, A:3, B:2, C:8, D:4, E:null},
+      prev: {S:null, A:'B', B:'S', C:'A', D:'B', E:null},
+      visited: ['S', 'B', 'A'],
+      inQueue: ['C', 'D'],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B'],
+      explanation: 'Lock in A. Shortest distance 3 confirmed.',
+      phase: 'mark'
+    },
+    // Step 14: Extract D
+    {
+      dist: {S:0, A:3, B:2, C:8, D:4, E:null},
+      prev: {S:null, A:'B', B:'S', C:'A', D:'B', E:null},
+      visited: ['S', 'B', 'A'],
+      inQueue: ['C'],
+      currentNode: 'D',
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D'],
+      explanation: 'Extract D (distance 4). Distance is now final.',
+      phase: 'extract'
+    },
+    // Step 15: Relax D→C
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:null},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:null},
+      visited: ['S', 'B', 'A'],
+      inQueue: ['C'],
+      currentNode: 'D',
+      relaxingEdge: 'C-D',
+      relaxingImproved: true,
+      pathEdges: ['S-B', 'A-B', 'B-D'],
+      explanation: 'Relax D→C (via edge C–D): 4 + 2 = 6 < 8. Update dist[C] = 6.',
+      phase: 'relax'
+    },
+    // Step 16: Relax D→E
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A'],
+      inQueue: ['C', 'E'],
+      currentNode: 'D',
+      relaxingEdge: 'D-E',
+      relaxingImproved: true,
+      pathEdges: ['S-B', 'A-B', 'B-D'],
+      explanation: 'Relax D→E: 4 + 1 = 5 < ∞. Set dist[E] = 5.',
+      phase: 'relax'
+    },
+    // Step 17: Mark D visited
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A', 'D'],
+      inQueue: ['C', 'E'],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D'],
+      explanation: 'Lock in D. Shortest distance 4 confirmed.',
+      phase: 'mark'
+    },
+    // Step 18: Extract E
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A', 'D'],
+      inQueue: ['C'],
+      currentNode: 'E',
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D', 'D-E'],
+      explanation: 'Extract E (distance 5). Distance is now final.',
+      phase: 'extract'
+    },
+    // Step 19: Check E→C (no improvement)
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A', 'D'],
+      inQueue: ['C'],
+      currentNode: 'E',
+      relaxingEdge: 'C-E',
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D', 'D-E'],
+      explanation: 'Check E→C (via C–E): 5 + 6 = 11 ≥ 6. No improvement.',
+      phase: 'relax'
+    },
+    // Step 20: Mark E visited
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A', 'D', 'E'],
+      inQueue: ['C'],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D', 'D-E'],
+      explanation: 'Lock in E. Shortest distance 5 confirmed.',
+      phase: 'mark'
+    },
+    // Step 21: Extract C
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A', 'D', 'E'],
+      inQueue: [],
+      currentNode: 'C',
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D', 'D-E', 'C-D'],
+      explanation: 'Extract C (distance 6). Distance is now final.',
+      phase: 'extract'
+    },
+    // Step 22: Mark C visited
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A', 'D', 'E', 'C'],
+      inQueue: [],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D', 'D-E', 'C-D'],
+      explanation: 'Lock in C. Shortest distance 6 confirmed.',
+      phase: 'mark'
+    },
+    // Step 23: Done
+    {
+      dist: {S:0, A:3, B:2, C:6, D:4, E:5},
+      prev: {S:null, A:'B', B:'S', C:'D', D:'B', E:'D'},
+      visited: ['S', 'B', 'A', 'D', 'E', 'C'],
+      inQueue: [],
+      currentNode: null,
+      relaxingEdge: null,
+      relaxingImproved: false,
+      pathEdges: ['S-B', 'A-B', 'B-D', 'D-E', 'C-D'],
+      explanation: 'Done! Shortest distances from S — S:0, B:2, A:3, D:4, E:5, C:6. Green edges form the shortest-path tree.',
+      phase: 'done'
+    }
+  ];
+
+  // ─── Edge list ────────────────────────────────────────────────────────────────
+  const EDGES = ['S-A', 'S-B', 'A-B', 'A-C', 'B-C', 'B-D', 'C-D', 'C-E', 'D-E'];
+  const NODES = ['S', 'A', 'B', 'C', 'D', 'E'];
+
+  // Node display order for table
+  const NODE_ORDER = ['S', 'A', 'B', 'C', 'D', 'E'];
+
+  // ─── State ────────────────────────────────────────────────────────────────────
+  let currentIdx = 0;
+  let playInterval = null;
+  let isPlaying = false;
+
+  // ─── Render ───────────────────────────────────────────────────────────────────
+  function render(idx) {
+    const s = STEPS[idx];
+
+    // 1. Explain
+    document.getElementById('explain').textContent = s.explanation;
+
+    // 2. Step counter
+    document.getElementById('step-counter').textContent = `Step ${idx + 1} / ${STEPS.length}`;
+
+    // 3. Node states
+    NODES.forEach(n => {
+      const circle = document.getElementById('nd-' + n);
+      const distEl = document.getElementById('dist-' + n);
+      let cls = 'state-unvisited';
+      let distColor = '#555B73';
+
+      if (s.visited.includes(n) || s.phase === 'done') {
+        cls = 'state-done';
+        distColor = '#34D399';
+      } else if (n === s.currentNode) {
+        cls = 'state-current';
+        distColor = '#3ECFB4';
+      } else if (s.inQueue.includes(n)) {
+        cls = 'state-queued';
+        distColor = '#FFBE59';
+      }
+
+      circle.className = cls;
+      distEl.setAttribute('fill', distColor);
+      const dv = s.dist[n];
+      distEl.textContent = dv === null ? '∞' : dv;
+    });
+
+    // 4. Edge states
+    EDGES.forEach(ek => {
+      const el = document.getElementById('el-' + ek);
+      let cls = 'edge-default';
+
+      if (s.pathEdges.includes(ek)) {
+        cls = 'edge-path';
+      }
+      if (s.relaxingEdge === ek) {
+        if (s.relaxingImproved) {
+          cls = 'edge-improved';
+        } else {
+          cls = 'edge-relaxing';
+        }
+      }
+      el.className = cls;
+    });
+
+    // 5. Distance table
+    const tbody = document.getElementById('dist-tbody');
+    tbody.innerHTML = '';
+    NODE_ORDER.forEach(n => {
+      const tr = document.createElement('tr');
+      const dv = s.dist[n];
+      const pv = s.prev[n];
+
+      let rowCls = '';
+      if (n === s.currentNode) rowCls = 'row-current';
+      else if (s.visited.includes(n) || s.phase === 'done') rowCls = 'row-visited';
+      else if (s.inQueue.includes(n)) rowCls = 'row-queued';
+      if (rowCls) tr.className = rowCls;
+
+      tr.innerHTML = `
+        <td class="node-col">${n}</td>
+        <td class="dist-col">${dv === null ? '∞' : dv}</td>
+        <td class="via-col">${pv === null ? '—' : pv}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // 6. Priority queue
+    const pqList = document.getElementById('pq-list');
+    pqList.innerHTML = '';
+
+    // Build PQ: show inQueue + currentNode (current is being processed)
+    const queueItems = [];
+    s.inQueue.forEach(n => {
+      const dv = s.dist[n];
+      queueItems.push({ node: n, dist: dv === null ? Infinity : dv });
+    });
+    // If currentNode exists and not yet visited, also show it as being processed
+    if (s.currentNode && !s.visited.includes(s.currentNode)) {
+      const dv = s.dist[s.currentNode];
+      queueItems.unshift({ node: s.currentNode, dist: dv === null ? Infinity : dv, isCurrent: true });
+    }
+
+    if (queueItems.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'pq-empty';
+      li.textContent = s.phase === 'done' ? 'Queue empty — done!' : 'Queue empty';
+      pqList.appendChild(li);
+    } else {
+      // Sort by distance
+      queueItems.sort((a, b) => a.dist - b.dist);
+
+      queueItems.forEach((item, i) => {
+        const li = document.createElement('li');
+        li.className = 'pq-item' + (i === 0 && !item.isCurrent ? ' pq-min' : '') + (item.isCurrent ? ' pq-current-item' : '');
+        if (item.isCurrent) {
+          li.style.borderColor = '#3ECFB4';
+          li.style.background = 'rgba(62,207,180,0.08)';
+          li.style.color = '#3ECFB4';
+        }
+        const distStr = item.dist === Infinity ? '∞' : item.dist;
+        li.innerHTML = `<span class="pq-node">${item.node}</span><span class="pq-dist">${distStr}</span>`;
+        pqList.appendChild(li);
+      });
+    }
+
+    // 7. Buttons
+    document.getElementById('btn-prev').disabled = idx === 0;
+    document.getElementById('btn-next').disabled = idx === STEPS.length - 1;
+  }
+
+  // ─── Controls ─────────────────────────────────────────────────────────────────
+  function step(dir) {
+    const next = currentIdx + dir;
+    if (next < 0 || next >= STEPS.length) return;
+    currentIdx = next;
+    render(currentIdx);
+
+    // Auto-stop at end
+    if (isPlaying && currentIdx === STEPS.length - 1) {
+      stopPlay();
+    }
+  }
+
+  function resetViz() {
+    stopPlay();
+    currentIdx = 0;
+    render(0);
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      stopPlay();
+    } else {
+      startPlay();
+    }
+  }
+
+  function startPlay() {
+    if (currentIdx === STEPS.length - 1) {
+      currentIdx = 0;
+      render(0);
+    }
+    isPlaying = true;
+    document.getElementById('btn-play').textContent = '⏸ Pause';
+    playInterval = setInterval(() => {
+      if (currentIdx < STEPS.length - 1) {
+        currentIdx++;
+        render(currentIdx);
+      } else {
+        stopPlay();
+      }
+    }, 650);
+  }
+
+  function stopPlay() {
+    isPlaying = false;
+    document.getElementById('btn-play').textContent = '▶ Play';
+    if (playInterval) {
+      clearInterval(playInterval);
+      playInterval = null;
+    }
+  }
+
+  // Keyboard support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); step(1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); step(-1); }
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    if (e.key === 'r' || e.key === 'R') resetViz();
+  });
+
+  // ─── Init ─────────────────────────────────────────────────────────────────────
+  render(0);
+</script>
+</body>
+</html>
