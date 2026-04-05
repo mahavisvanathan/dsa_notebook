@@ -553,7 +553,7 @@
     <button class="ptab active" data-pid="fib" onclick="switchProblem('fib')">1D — Fibonacci</button>
     <button class="ptab" data-pid="climb" onclick="switchProblem('climb')">1D — Climbing stairs</button>
     <button class="ptab" data-pid="rob" onclick="switchProblem('rob')">1D — House robber</button>
-    <button class="ptab" data-pid="coin" onclick="switchProblem('coin')">1D — Coin change</button>
+    <button class="ptab" data-pid="coin" onclick="switchProblem('coin')">2D — Coin change</button>
     <button class="ptab" data-pid="lcs" onclick="switchProblem('lcs')">2D — Longest common subsequence</button>
     <button class="ptab" data-pid="edit" onclick="switchProblem('edit')">2D — Edit distance</button>
   </div>
@@ -785,13 +785,14 @@
   <!-- COIN -->
   <div class="problem-panel" id="panel-coin">
     <div class="problem-desc">
-      <div class="prob-tag" style="color:#FFBE59">1-D DP · leetcode 322 · medium</div>
+      <div class="prob-tag" style="color:#FFBE59">2-D DP · leetcode 322 · medium</div>
       <p class="prob-statement">
         Given an integer array <strong>coins</strong> of different denominations and an integer <strong>amount</strong>,
         return the <strong>fewest number of coins</strong> needed to make up that amount. If it's impossible, return <strong>-1</strong>.
         You may assume you have an infinite supply of each coin.<br>
-        Build up from 0: <code>dp[i]</code> is the minimum coins to form amount <code>i</code>. For each sub-amount, try every coin
-        and keep the best subproblem you can extend by one coin.
+        The table's rows are coin types (first i coins available), columns are amounts (0 .. amount).
+        At every cell you make one decision: <em>skip</em> this coin, or <em>use</em> it (and, since coins are unbounded, stay on the same row).
+        This is the classic unbounded-knapsack shape.
       </p>
       <div class="prob-example">
         <span class="prob-ex-label">examples</span>
@@ -802,21 +803,21 @@
     <div class="meta-row">
       <div class="meta-card">
         <div class="meta-label">Subproblem</div>
-        <div class="meta-value"><code style="font-family:'JetBrains Mono',monospace;color:var(--teal)">dp[i]</code> = min coins to make amount i</div>
+        <div class="meta-value"><code style="font-family:'JetBrains Mono',monospace;color:var(--teal)">dp[i][j]</code> = min coins to make amount j using first i coin types</div>
       </div>
       <div class="meta-card">
         <div class="meta-label">Recurrence</div>
-        <div class="recurrence">dp[i] = min(dp[i - coin] + 1) for each coin ≤ i<br>dp[0] = 0, else ∞</div>
+        <div class="recurrence">dp[i][j] = min(dp[i-1][j], dp[i][j - coins[i-1]] + 1)<br>dp[0][0] = 0, dp[0][j&gt;0] = ∞, dp[i][0] = 0</div>
       </div>
     </div>
     <div class="input-row">
       <label>coins =</label>
       <input type="text" id="coin-coins" value="1,2,5" style="width:120px">
       <label style="margin-left:16px">amount =</label>
-      <input type="number" id="coin-amount" value="11" min="0" max="30" style="width:70px">
+      <input type="number" id="coin-amount" value="11" min="0" max="20" style="width:70px">
       <button class="btn-rebuild" onclick="initCoin()">rebuild</button>
     </div>
-    <div class="explain-box" id="coin-explain">Press <strong>Next step</strong> to begin. Fill the table from amount 0 up to the target.</div>
+    <div class="explain-box" id="coin-explain">Press <strong>Next step</strong> to begin. Each cell asks: using only the first i coins, what's the min number of coins that sum to j?</div>
     <div class="ctrl-row">
       <button class="ctrl-btn" onclick="coinStep(-1)">&#8592; Prev</button>
       <button class="ctrl-btn primary" onclick="togglePlay('coin')">&#9654; Play</button>
@@ -825,15 +826,15 @@
       <span class="step-counter" id="coin-counter">step 0</span>
     </div>
     <div class="legend">
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--surface2);border-color:var(--border2)"></div>filled</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>source cells</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>skip coin (i-1)</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--amber-dim);border-color:var(--amber)"></div>use coin (j - c)</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--teal-dim);border-color:var(--teal)"></div>current</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--green-dim);border-color:var(--green)"></div>answer</div>
     </div>
-    <div class="array-viz" id="coin-array"></div>
+    <div class="table-scroll" id="coin-table"></div>
     <div class="complexity-row">
-      <span class="badge badge-time">time: O(amount · coins)</span>
-      <span class="badge badge-space">space: O(amount)</span>
+      <span class="badge badge-time">time: O(n · amount)</span>
+      <span class="badge badge-space">space: O(n · amount) → O(amount) optimized</span>
       <span class="badge badge-pattern">pattern: unbounded knapsack</span>
     </div>
     <details class="notes-panel">
@@ -841,19 +842,19 @@
       <div class="notes-body">
         <div class="notes-row">
           <div class="notes-label">Key Insight</div>
-          <div class="notes-value">Every sub-amount is a smaller version of the same problem. For amount i, try every coin: dp[i] = 1 + min(dp[i - coin]).</div>
+          <div class="notes-value">Two choices per cell: skip this coin (inherit dp[i-1][j]) or use it (add 1 to dp[i][j-coin], same row because coins are unbounded).</div>
         </div>
         <div class="notes-row">
           <div class="notes-label">Complexity</div>
-          <div class="notes-value"><strong>Time:</strong> O(amount · coins) | <strong>Space:</strong> O(amount)</div>
+          <div class="notes-value"><strong>Time:</strong> O(n · amount) | <strong>Space:</strong> O(n · amount), collapses to O(amount)</div>
         </div>
         <div class="notes-row">
           <div class="notes-label">Pattern</div>
-          <div class="notes-value">Unbounded knapsack — each coin can be reused; bottom-up 1-D DP</div>
+          <div class="notes-value">Unbounded knapsack — each row reads only from itself and the previous row, so it flattens to 1-D.</div>
         </div>
         <div class="notes-row">
           <div class="notes-label">Edge Cases</div>
-          <div class="notes-value">amount=0 → 0; unreachable amount → -1 (detect via ∞ sentinel)</div>
+          <div class="notes-value">amount=0 → 0; row 0 (no coins) = ∞ for j&gt;0; unreachable final cell → -1</div>
         </div>
       </div>
     </details>
@@ -1267,85 +1268,106 @@ function robStep(dir) {
 // ═══════════════════════════════════════════════════════════════════════════════
 let coinState = {};
 
+function buildCoinBase(n, amount) {
+  const dp = Array.from({length: n+1}, () => new Array(amount+1).fill(undefined));
+  dp[0][0] = 0;
+  for (let j=1;j<=amount;j++) dp[0][j] = Infinity;
+  for (let i=1;i<=n;i++) dp[i][0] = 0;
+  return dp;
+}
+
+function coinDisplay(dp) {
+  return dp.map(row => row.map(v => v === Infinity ? '∞' : v));
+}
+
 function initCoin() {
   stopPlay('coin');
   const coinsRaw = $('coin-coins').value.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x) && x > 0);
-  const coins = coinsRaw.length ? coinsRaw.slice(0, 6) : [1,2,5];
-  const amount = clamp(parseInt($('coin-amount').value) || 11, 0, 30);
-  coinState = { coins, amount, dp: new Array(amount+1).fill(null), step: -1 };
-  $('coin-explain').innerHTML = 'Press <strong>Next step</strong> to begin. Fill the table from amount 0 up to the target.';
+  const coins = coinsRaw.length ? coinsRaw.slice(0, 5) : [1,2,5];
+  const amount = clamp(parseInt($('coin-amount').value) || 11, 0, 20);
+  const n = coins.length;
+  const dp = buildCoinBase(n, amount);
+  coinState = { coins, amount, n, dp, step: -1, totalSteps: (n+1)*(amount+1) };
+  $('coin-explain').innerHTML = `Press <strong>Next step</strong> to begin. coins = [${coins.join(', ')}], amount = ${amount}`;
   $('coin-counter').textContent = 'step 0';
-  render1D('coin-array', coinState.dp, -1, amount, null, null, amount);
+  const rowHdr = coins.map(String);
+  const colHdr = Array.from({length: amount}, (_, k) => String(k+1));
+  render2D('coin-table', coinDisplay(dp), n, amount, rowHdr, colHdr, -1, -1, null, false);
 }
 
 function coinStep(dir) {
   const s = coinState;
+  const total = s.totalSteps;
   const nextStep = s.step + dir;
-  if (nextStep < 0 || nextStep > s.amount) return false;
+  if (nextStep < 0 || nextStep >= total) return false;
   s.step = nextStep;
 
-  // Fill dp up to current step
-  const INF = Infinity;
-  const filled = new Array(s.amount + 1).fill(null);
-  filled[0] = 0;
-  for (let i = 1; i <= s.step; i++) {
-    let best = INF;
-    for (const c of s.coins) {
-      if (i - c >= 0 && filled[i-c] !== INF) {
-        best = Math.min(best, filled[i-c] + 1);
-      }
-    }
-    filled[i] = best;
-  }
-  // Display Infinity as '∞' string for rendering
-  s.dp = filled.map(v => v === INF ? '∞' : v);
+  const dp = buildCoinBase(s.n, s.amount);
 
-  const i = s.step;
-  let expl = '';
-  if (i === 0) {
-    expl = `Base case: <span class="mono">dp[0] = <span class="res">0</span></span> — zero coins needed to make amount 0.`;
-  } else {
-    const options = [];
-    let best = INF;
-    let bestCoin = null;
-    for (const c of s.coins) {
-      if (i - c >= 0) {
-        const sub = filled[i-c];
-        if (sub === INF) {
-          options.push(`coin ${c}: dp[${i-c}]=∞`);
-        } else {
-          const cand = sub + 1;
-          options.push(`coin ${c}: dp[${i-c}]+1=${sub}+1=${cand}`);
-          if (cand < best) { best = cand; bestCoin = c; }
-        }
+  let curI = 0, curJ = 0, stepCount = 0;
+  outer: for (let i=0;i<=s.n;i++) {
+    for (let j=0;j<=s.amount;j++) {
+      if (i===0 || j===0) {
+        if (stepCount === s.step) { curI=i; curJ=j; break outer; }
+        stepCount++;
+        continue;
       }
-    }
-    if (options.length === 0) {
-      expl = `<span class="mono">dp[${i}] = <span class="res">∞</span></span> — no coin ≤ ${i} to choose from.`;
-    } else if (best === INF) {
-      expl = `<span class="mono">dp[${i}] = min(${options.join(', ')}) = <span class="res">∞</span></span> — every subproblem is unreachable.`;
-    } else {
-      expl = `<span class="mono">dp[${i}] = min(${options.join(', ')}) = <span class="res">${best}</span></span> — pick coin ${bestCoin}.`;
+      const skip = dp[i-1][j];
+      const coin = s.coins[i-1];
+      let use = Infinity;
+      if (j - coin >= 0 && dp[i][j-coin] !== Infinity) use = dp[i][j-coin] + 1;
+      dp[i][j] = Math.min(skip, use);
+      if (stepCount === s.step) { curI=i; curJ=j; break outer; }
+      stepCount++;
     }
   }
-  if (i === s.amount) {
-    const ans = filled[s.amount];
-    if (ans === INF) expl += `  — <span class="res">Answer: -1 (impossible)</span>`;
+  s.dp = dp;
+
+  const isBase = curI === 0 || curJ === 0;
+  const isAnswer = curI === s.n && curJ === s.amount;
+  let expl = '';
+  let srcCells = [];
+
+  if (isBase) {
+    if (curI === 0 && curJ === 0) {
+      expl = `Base case: <span class="mono">dp[0][0] = <span class="res">0</span></span> — no coins, amount 0, need 0 coins.`;
+    } else if (curI === 0) {
+      expl = `Base case: <span class="mono">dp[0][${curJ}] = <span class="res">∞</span></span> — with zero coin types you can't make any positive amount.`;
+    } else {
+      expl = `Base case: <span class="mono">dp[${curI}][0] = <span class="res">0</span></span> — amount 0 always needs 0 coins.`;
+    }
+  } else {
+    const coin = s.coins[curI-1];
+    const skip = dp[curI-1][curJ];
+    const skipStr = skip === Infinity ? '∞' : skip;
+    const best = dp[curI][curJ];
+    const bestStr = best === Infinity ? '∞' : best;
+    if (curJ < coin) {
+      expl = `coin ${coin} &gt; ${curJ} — can't use it. <span class="mono">dp[${curI}][${curJ}] = dp[${curI-1}][${curJ}] = <span class="res">${bestStr}</span></span>`;
+      srcCells = [[curI-1, curJ, 'row']];
+    } else {
+      const subUse = dp[curI][curJ-coin];
+      const subUseStr = subUse === Infinity ? '∞' : subUse;
+      const useCand = subUse === Infinity ? Infinity : subUse + 1;
+      const useStr = useCand === Infinity ? '∞' : useCand;
+      const pickedUse = useCand < skip;
+      expl = `coin ${coin} ≤ ${curJ}. skip: <span class="mono">dp[${curI-1}][${curJ}]=${skipStr}</span>, use: <span class="mono">dp[${curI}][${curJ-coin}]+1=${subUseStr}+1=${useStr}</span> → <span class="mono">dp[${curI}][${curJ}] = <span class="res">${bestStr}</span></span>`;
+      if (best !== Infinity) expl += pickedUse ? ` — use coin ${coin}` : ` — skip coin ${coin}`;
+      srcCells = [[curI-1, curJ, 'row'], [curI, curJ-coin, 'col']];
+    }
+  }
+  if (isAnswer) {
+    const ans = dp[s.n][s.amount];
+    if (ans === Infinity) expl += `  — <span class="res">Answer: -1 (impossible)</span>`;
     else expl += `  — <span class="res">Fewest coins: ${ans}</span>`;
   }
 
-  // Sources: i - coin for each coin where i - coin >= 0
-  const src = [];
-  if (i >= 1) {
-    for (const c of s.coins) {
-      if (i - c >= 0 && !src.includes(i - c)) src.push(i - c);
-    }
-  }
-
+  const rowHdr = s.coins.map(String);
+  const colHdr = Array.from({length: s.amount}, (_, k) => String(k+1));
   $('coin-explain').innerHTML = expl;
-  $('coin-counter').textContent = `step ${i + 1} / ${s.amount + 1}`;
-  render1D('coin-array', s.dp, i, s.amount, null, src, s.amount);
-  return i < s.amount;
+  $('coin-counter').textContent = `step ${s.step + 1} / ${total}`;
+  render2D('coin-table', coinDisplay(dp), s.n, s.amount, rowHdr, colHdr, curI, curJ, srcCells, isAnswer);
+  return !isAnswer;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

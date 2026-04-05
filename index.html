@@ -267,10 +267,10 @@ footer {
       </a>
       <a class="card cat-dp" href="/dp#coin">
         <h2>Coin Change</h2>
-        <p>Fewest coins to make a target amount. For each sub-amount, try every coin and keep the best subproblem plus one.</p>
+        <p>Fewest coins to make a target amount. Rows are coin types, columns are amounts — each cell decides: skip this coin or use it.</p>
         <div class="card-pills">
-          <span class="pill">1-D DP</span>
-          <span class="pill">O(amount·coins)</span>
+          <span class="pill">2-D DP</span>
+          <span class="pill">O(n·amount)</span>
           <span class="pill">LC #322</span>
         </div>
       </a>
