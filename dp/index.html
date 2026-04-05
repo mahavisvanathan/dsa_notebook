@@ -517,11 +517,11 @@
 
 <main>
   <div class="prob-nav">
-    <button class="ptab active" onclick="switchProblem('fib')">1D — Fibonacci</button>
-    <button class="ptab" onclick="switchProblem('climb')">1D — Climbing stairs</button>
-    <button class="ptab" onclick="switchProblem('rob')">1D — House robber</button>
-    <button class="ptab" onclick="switchProblem('lcs')">2D — Longest common subsequence</button>
-    <button class="ptab" onclick="switchProblem('edit')">2D — Edit distance</button>
+    <button class="ptab active" data-pid="fib" onclick="switchProblem('fib')">1D — Fibonacci</button>
+    <button class="ptab" data-pid="climb" onclick="switchProblem('climb')">1D — Climbing stairs</button>
+    <button class="ptab" data-pid="rob" onclick="switchProblem('rob')">1D — House robber</button>
+    <button class="ptab" data-pid="lcs" onclick="switchProblem('lcs')">2D — Longest common subsequence</button>
+    <button class="ptab" data-pid="edit" onclick="switchProblem('edit')">2D — Edit distance</button>
   </div>
 
   <!-- FIB -->
@@ -941,12 +941,19 @@ function stopPlay(id) {
 }
 
 // ─── TAB SWITCH ──────────────────────────────────────────────────────────────
+const VALID_PIDS = ['fib', 'climb', 'rob', 'lcs', 'edit'];
+
 function switchProblem(id) {
+  if (!VALID_PIDS.includes(id)) return;
   Object.keys(players).forEach(stopPlay);
   document.querySelectorAll('.problem-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
   $(`panel-${id}`).classList.add('active');
-  event.target.classList.add('active');
+  const tab = document.querySelector(`.ptab[data-pid="${id}"]`);
+  if (tab) tab.classList.add('active');
+  if (window.location.hash !== '#' + id) {
+    history.replaceState(null, '', '#' + id);
+  }
 }
 
 // ─── 1D ARRAY RENDERER ───────────────────────────────────────────────────────
@@ -1298,6 +1305,14 @@ initClimb();
 initRob();
 initLCS();
 initEdit();
+
+// ─── HASH ROUTING ─────────────────────────────────────────────────────────────
+function applyHash() {
+  const id = window.location.hash.slice(1);
+  if (VALID_PIDS.includes(id)) switchProblem(id);
+}
+applyHash();
+window.addEventListener('hashchange', applyHash);
 </script>
 </body>
 </html>

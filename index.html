@@ -18,13 +18,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  padding: 3rem 2rem 4rem;
 }
 
 header {
   text-align: center;
-  margin-bottom: 3.5rem;
+  margin-bottom: 3rem;
+  max-width: 560px;
 }
 
 .eyebrow {
@@ -56,32 +56,60 @@ h1 span { color: #3ECFB4; }
   line-height: 1.7;
 }
 
+main {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cat-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-left: 2px;
+}
+
+.cat-line {
+  flex: 1;
+  height: 1px;
+  background: #2E3348;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 16px;
-  width: 100%;
-  max-width: 880px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
 .card {
   background: #1A1D27;
   border: 1px solid #2E3348;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.35rem;
   text-decoration: none;
   color: #E8ECF4;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
 .card:hover {
-  border-color: #3ECFB4;
   transform: translateY(-3px);
   box-shadow: 0 10px 32px rgba(0,0,0,0.35);
 }
+
+.card.cat-graph:hover   { border-color: #A78BFA; }
+.card.cat-dp:hover      { border-color: #FFBE59; }
+.card.cat-strings:hover { border-color: #FF6B6B; }
 
 .cat-tag {
   font-family: 'JetBrains Mono', monospace;
@@ -92,37 +120,47 @@ h1 span { color: #3ECFB4; }
   border-radius: 4px;
   font-weight: 500;
   display: inline-block;
+  white-space: nowrap;
 }
 
-.cat-dp {
-  background: rgba(255,190,89,0.12);
-  color: #FFBE59;
-  border: 1px solid rgba(255,190,89,0.22);
-}
-
-.cat-graph {
+.cat-tag.cat-graph {
   background: rgba(167,139,250,0.12);
   color: #A78BFA;
   border: 1px solid rgba(167,139,250,0.22);
 }
 
+.cat-tag.cat-dp {
+  background: rgba(255,190,89,0.12);
+  color: #FFBE59;
+  border: 1px solid rgba(255,190,89,0.22);
+}
+
+.cat-tag.cat-strings {
+  background: rgba(255,107,107,0.12);
+  color: #FF6B6B;
+  border: 1px solid rgba(255,107,107,0.22);
+}
+
 .card h2 {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #E8ECF4;
+  line-height: 1.3;
 }
 
 .card p {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #8B92A8;
-  line-height: 1.65;
+  line-height: 1.6;
+  flex: 1;
 }
 
 .card-pills {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  margin-top: 4px;
 }
 
 .pill {
@@ -152,61 +190,110 @@ footer {
   <p class="subtitle">Step-by-step algorithm visualizations. See exactly what the code is doing, one operation at a time.</p>
 </header>
 
-<main class="grid">
-  <a class="card" href="/dp">
-    <span class="cat-tag cat-dp">Dynamic Programming</span>
-    <h2>DP Visualizer</h2>
-    <p>Walk through five classic DP problems cell by cell — Fibonacci, Climbing Stairs, House Robber, LCS, and Edit Distance.</p>
-    <div class="card-pills">
-      <span class="pill">1-D DP</span>
-      <span class="pill">2-D DP</span>
-      <span class="pill">5 problems</span>
-    </div>
-  </a>
+<main>
 
-  <a class="card" href="/strings">
-    <span class="cat-tag" style="background:rgba(255,107,107,0.12);color:#FF6B6B;border:1px solid rgba(255,107,107,0.22)">Strings</span>
-    <h2>String Visualizer</h2>
-    <p>Watch the expand-around-center algorithm find the longest palindromic substring, step by step with live pointer and state tracking.</p>
-    <div class="card-pills">
-      <span class="pill">Expand Around Center</span>
-      <span class="pill">O(n²)</span>
-      <span class="pill">LeetCode #5</span>
+  <!-- Graph Algorithms -->
+  <section class="category">
+    <div class="cat-header">
+      <span class="cat-tag cat-graph">Graph Algorithms</span>
+      <div class="cat-line"></div>
     </div>
-  </a>
+    <div class="grid">
+      <a class="card cat-graph" href="/graphs">
+        <h2>Dijkstra's Shortest Path</h2>
+        <p>Find shortest paths from a source to every node. Greedy extract-min from a priority queue locks in distances closest-first.</p>
+        <div class="card-pills">
+          <span class="pill">Greedy</span>
+          <span class="pill">Min-Heap</span>
+          <span class="pill">O((V+E) log V)</span>
+        </div>
+      </a>
+      <a class="card cat-graph" href="/topo-sort">
+        <h2>Topological Sort</h2>
+        <p>Order nodes so every edge points forward. Peel off zero-in-degree nodes, remove their outgoing edges, repeat until the DAG is gone.</p>
+        <div class="card-pills">
+          <span class="pill">Kahn's BFS</span>
+          <span class="pill">In-degree</span>
+          <span class="pill">LC #207</span>
+        </div>
+      </a>
+    </div>
+  </section>
 
-  <a class="card" href="/graphs">
-    <span class="cat-tag cat-graph">Graph Algorithms</span>
-    <h2>Graph Visualizer</h2>
-    <p>Watch Dijkstra's shortest-path algorithm run node by node, with a live priority queue and distance table at every step.</p>
-    <div class="card-pills">
-      <span class="pill">Greedy</span>
-      <span class="pill">Min-Heap</span>
-      <span class="pill">Shortest Path</span>
+  <!-- Dynamic Programming -->
+  <section class="category">
+    <div class="cat-header">
+      <span class="cat-tag cat-dp">Dynamic Programming</span>
+      <div class="cat-line"></div>
     </div>
-  </a>
+    <div class="grid">
+      <a class="card cat-dp" href="/dp#fib">
+        <h2>Fibonacci</h2>
+        <p>Classic 1-D DP. Each value is the sum of the previous two, filled bottom-up into a table.</p>
+        <div class="card-pills">
+          <span class="pill">1-D DP</span>
+          <span class="pill">O(n)</span>
+          <span class="pill">LC #509</span>
+        </div>
+      </a>
+      <a class="card cat-dp" href="/dp#climb">
+        <h2>Climbing Stairs</h2>
+        <p>Count distinct ways to climb n steps when each move is 1 or 2 steps. Same recurrence as Fibonacci, different framing.</p>
+        <div class="card-pills">
+          <span class="pill">1-D DP</span>
+          <span class="pill">O(n)</span>
+          <span class="pill">LC #70</span>
+        </div>
+      </a>
+      <a class="card cat-dp" href="/dp#rob">
+        <h2>House Robber</h2>
+        <p>Max loot without robbing adjacent houses. Each house decides: skip, or take and jump two ahead.</p>
+        <div class="card-pills">
+          <span class="pill">1-D DP</span>
+          <span class="pill">O(n)</span>
+          <span class="pill">LC #198</span>
+        </div>
+      </a>
+      <a class="card cat-dp" href="/dp#lcs">
+        <h2>Longest Common Subsequence</h2>
+        <p>Find the longest subsequence shared by two strings. A 2-D table indexed by prefix lengths of each string.</p>
+        <div class="card-pills">
+          <span class="pill">2-D DP</span>
+          <span class="pill">O(m·n)</span>
+          <span class="pill">LC #1143</span>
+        </div>
+      </a>
+      <a class="card cat-dp" href="/dp#edit">
+        <h2>Edit Distance</h2>
+        <p>Minimum insert, delete, or replace operations to transform one string into another. Levenshtein distance.</p>
+        <div class="card-pills">
+          <span class="pill">2-D DP</span>
+          <span class="pill">O(m·n)</span>
+          <span class="pill">LC #72</span>
+        </div>
+      </a>
+    </div>
+  </section>
 
-  <a class="card" href="/topo-sort">
-    <span class="cat-tag cat-graph">Graph Algorithms</span>
-    <h2>Topological Sort</h2>
-    <p>Step through Kahn's algorithm on a course-prerequisite DAG. Watch in-degrees drop, nodes unlock, and a linear ordering emerge.</p>
-    <div class="card-pills">
-      <span class="pill">Kahn's BFS</span>
-      <span class="pill">In-degree</span>
-      <span class="pill">LeetCode #207</span>
+  <!-- Strings -->
+  <section class="category">
+    <div class="cat-header">
+      <span class="cat-tag cat-strings">Strings</span>
+      <div class="cat-line"></div>
     </div>
-  </a>
+    <div class="grid">
+      <a class="card cat-strings" href="/strings">
+        <h2>Longest Palindromic Substring</h2>
+        <p>Find the longest palindrome inside a string. Expand around each center — odd and even — and track the best window seen.</p>
+        <div class="card-pills">
+          <span class="pill">Expand Around Center</span>
+          <span class="pill">O(n²)</span>
+          <span class="pill">LC #5</span>
+        </div>
+      </a>
+    </div>
+  </section>
 
-  <a class="card" href="/leetcode">
-    <span class="cat-tag" style="background:rgba(200,247,100,0.12);color:#C8F764;border:1px solid rgba(200,247,100,0.22)">LeetCode Prep</span>
-    <h2>LeetCode Tracker</h2>
-    <p>A curated checklist for LinkedIn interview prep — track progress across arrays, strings, trees, graphs, heaps, and DP.</p>
-    <div class="card-pills">
-      <span class="pill">LeetCode</span>
-      <span class="pill">13 problems</span>
-      <span class="pill">Interview Prep</span>
-    </div>
-  </a>
 </main>
 
 <footer>visualize the subproblem</footer>
