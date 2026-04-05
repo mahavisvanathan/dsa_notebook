@@ -1,4 +1,4 @@
-# programming_artifacts
+# DSA Notebook
 
 Interactive, step-by-step algorithm visualizations for classic data structures and algorithms (DSA) problems — the kind that show up in coding interviews and LeetCode practice. Every visualizer lets you scrub through an algorithm one operation at a time — watching state, pointers, tables, queues, and edges change at each step — so the internal logic stops being abstract.
 
