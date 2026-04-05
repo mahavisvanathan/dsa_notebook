@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkedIn Prep — LeetCode Tracker</title>
-<meta name="description" content="Curated LeetCode problem checklist with per-problem notes for technical interview prep. Tracks 13 problems across arrays, strings, trees, graphs, and DP.">
+<meta name="description" content="Curated LeetCode problem checklist with per-problem notes for technical interview prep. Tracks 18 problems across arrays, strings, trees, graphs, and DP.">
 <meta name="author" content="Mahalakshumi Visvanathan">
 <link rel="canonical" href="https://mahav.io/leetcode">
 <meta property="og:title" content="LeetCode Tracker — Interview Prep Checklist">
@@ -29,6 +29,7 @@
     --muted: #6b6a72;
     --accent: #c8f764;
     --accent-dim: rgba(200,247,100,0.12);
+    --easy: #5fb87a;
     --medium: #f0b429;
     --hard: #e05252;
     --done-text: #3a3a42;
@@ -269,6 +270,7 @@
     flex-shrink: 0;
   }
 
+  .diff-easy   { background: rgba(95,184,122,0.12); color: var(--easy);   }
   .diff-medium { background: rgba(240,180,41,0.12); color: var(--medium); }
   .diff-hard   { background: rgba(224,82,82,0.12);  color: var(--hard);   }
 
@@ -422,7 +424,7 @@
   <a class="back-link" href="/">← dsa-notebook</a>
   <header>
     <div class="eyebrow">LinkedIn SWE — Technical round</div>
-    <h1>12-problem<br><em>primer.</em></h1>
+    <h1>18-problem<br><em>primer.</em></h1>
     <p class="subtitle">One focused weekend. Maximum concept coverage.</p>
   </header>
 
@@ -432,7 +434,7 @@
       <div class="stat-label">Solved</div>
     </div>
     <div class="stat">
-      <div class="stat-num" id="remaining-count">13</div>
+      <div class="stat-num" id="remaining-count">18</div>
       <div class="stat-label">Remaining</div>
     </div>
     <div class="stat">
@@ -471,10 +473,12 @@ const problems = [
   ]},
   { topic: "Linked list", items: [
     { id: 5,  name: "Reverse linked list",                 diff: "medium", lc: 206 },
+    { id: 18, name: "Reorder list",                        diff: "medium", lc: 143 },
     { id: 6,  name: "Merge k sorted lists",                diff: "hard",   lc: 23  },
   ]},
   { topic: "Binary tree", items: [
     { id: 7,  name: "Binary tree level order traversal",   diff: "medium", lc: 102 },
+    { id: 15, name: "Validate binary search tree",         diff: "medium", lc: 98  },
     { id: 8,  name: "Binary tree maximum path sum",        diff: "hard",   lc: 124 },
   ]},
   { topic: "Heap", items: [
@@ -482,12 +486,15 @@ const problems = [
   ]},
   { topic: "Graphs", items: [
     { id: 10, name: "Number of islands",                   diff: "medium", lc: 200 },
+    { id: 16, name: "Word search",                         diff: "medium", lc: 79  },
     { id: 11, name: "Course schedule",                     diff: "medium", lc: 207 },
   ]},
   { topic: "Binary search", items: [
     { id: 12, name: "Search in rotated sorted array",      diff: "medium", lc: 33  },
   ]},
   { topic: "Dynamic programming", items: [
+    { id: 14, name: "Climbing stairs",                     diff: "easy",   lc: 70  },
+    { id: 17, name: "House robber",                        diff: "medium", lc: 198 },
     { id: 13, name: "Coin change",                         diff: "medium", lc: 322 },
   ]},
 ];
@@ -606,6 +613,11 @@ const slugs = {
   207:'course-schedule',
   33: 'search-in-rotated-sorted-array',
   322:'coin-change',
+  70: 'climbing-stairs',
+  98: 'validate-binary-search-tree',
+  79: 'word-search',
+  198:'house-robber',
+  143:'reorder-list',
 };
 
 const d = new Date();
