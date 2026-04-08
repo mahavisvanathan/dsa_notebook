@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maximum Product Subarray — Visual Guide</title>
+<meta name="description" content="Step-by-step visualizer for the maximum product subarray algorithm (LeetCode #152). Watch maxProd, minProd, and result update as you scan left to right.">
+<meta name="author" content="Mahalakshumi Visvanathan">
+<link rel="canonical" href="https://mahav.io/max-product">
+<meta property="og:title" content="Maximum Product Subarray — LeetCode #152 Visualizer">
+<meta property="og:description" content="See why tracking both max and min products is the key insight. Step through every index and watch the candidates race.">
+<meta property="og:url" content="https://mahav.io/max-product">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="dsa-notebook">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#0F1117">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #0F1117;
+  --surface:    #1A1D27;
+  --surface2:   #242838;
+  --border:     #2E3348;
+  --text:       #E8ECF4;
+  --muted:      #8B92A8;
+  --hint:       #555B73;
+  --amber:      #FFBE59;
+  --amber-dim:  rgba(255,190,89,0.12);
+  --coral:      #FF6B6B;
+  --coral-dim:  rgba(255,107,107,0.12);
+  --green:      #34D399;
+  --green-dim:  rgba(52,211,153,0.12);
+  --teal:       #3ECFB4;
+  --purple:     #A78BFA;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── HEADER ──────────────────────────────────────────────────── */
+header {
+  padding: 3rem 2rem 2rem;
+  max-width: 980px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--hint);
+  text-decoration: none;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.back-link:hover { color: var(--text); border-color: var(--hint); background: var(--surface); }
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.6rem, 4vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+
+h1 span { color: var(--amber); }
+
+.header-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.meta-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.pill-diff { background: rgba(255,190,89,0.1); color: var(--amber); border-color: rgba(255,190,89,0.25); }
+.pill-pat  { background: rgba(52,211,153,0.1); color: var(--green); border-color: rgba(52,211,153,0.2); }
+.pill-num  { background: transparent; color: var(--hint); border-color: var(--border); }
+
+/* ── PAGE WRAP ───────────────────────────────────────────────── */
+.page-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* ── PROBLEM DESC ────────────────────────────────────────────── */
+.problem-desc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.prob-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 8px;
+}
+
+.prob-statement {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.prob-statement strong { color: var(--teal); font-weight: 500; }
+
+.prob-example {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+.prob-ex-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hint);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ex-hi  { color: var(--amber); }
+.ex-ans { color: var(--green); }
+
+/* ── INPUT ROW ───────────────────────────────────────────────── */
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.input-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--hint);
+  white-space: nowrap;
+}
+
+.array-input {
+  flex: 1;
+  min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  padding: 7px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.array-input:focus { border-color: var(--amber); }
+
+.run-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid var(--amber);
+  background: var(--amber-dim);
+  color: var(--amber);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.run-btn:hover { background: rgba(255,190,89,0.22); }
+
+/* ── VIZ CANVAS ──────────────────────────────────────────────── */
+.viz-canvas {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.viz-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hint);
+  margin-bottom: 10px;
+}
+
+/* Array row */
+.array-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.cell-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.cell-idx {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--hint);
+}
+
+.num-cell {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--hint);
+  transition: background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+  user-select: none;
+}
+
+/* Cell states */
+.cs-default  { background: var(--bg);      border-color: var(--border); color: var(--hint); }
+.cs-current  { background: rgba(255,190,89,0.18); border-color: var(--amber); color: var(--amber); box-shadow: 0 0 16px rgba(255,190,89,0.35); }
+.cs-visited  { background: var(--surface2); border-color: #3a3f55; color: var(--muted); }
+.cs-best     { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.45); color: var(--green); }
+
+/* State cards */
+.state-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: 1.5px solid;
+  min-width: 120px;
+  transition: all 0.3s;
+}
+
+.sc-max  { background: var(--amber-dim); border-color: rgba(255,190,89,0.3); }
+.sc-min  { background: var(--coral-dim); border-color: rgba(255,107,107,0.3); }
+.sc-res  { background: var(--green-dim); border-color: rgba(52,211,153,0.3); }
+
+.sc-max.updated { box-shadow: 0 0 18px rgba(255,190,89,0.4); border-color: var(--amber); }
+.sc-min.updated { box-shadow: 0 0 18px rgba(255,107,107,0.4); border-color: var(--coral); }
+.sc-res.updated { box-shadow: 0 0 18px rgba(52,211,153,0.4); border-color: var(--green); }
+
+.sc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sc-max .sc-label { color: var(--amber); }
+.sc-min .sc-label { color: var(--coral); }
+.sc-res .sc-label { color: var(--green); }
+
+.sc-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  transition: transform 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+
+.sc-max .sc-value { color: var(--amber); }
+.sc-min .sc-value { color: var(--coral); }
+.sc-res .sc-value { color: var(--green); }
+
+.sc-value.pop { transform: scale(1.2); }
+
+/* Candidates panel */
+.candidates-wrap {
+  margin-bottom: 1.25rem;
+  min-height: 80px;
+}
+
+.cand-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.cand-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  min-width: 110px;
+  transition: all 0.25s;
+}
+
+.cand-card.winner-max { border-color: var(--amber); background: var(--amber-dim); }
+.cand-card.winner-min { border-color: var(--coral); background: var(--coral-dim); }
+
+.cand-expr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  text-align: center;
+}
+
+.cand-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.cand-card.winner-max .cand-val { color: var(--amber); }
+.cand-card.winner-min .cand-val { color: var(--coral); }
+
+.cand-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  display: none;
+}
+
+.cand-card.winner-max .cand-badge.badge-max { display: inline-block; background: var(--amber-dim); color: var(--amber); }
+.cand-card.winner-min .cand-badge.badge-min { display: inline-block; background: var(--coral-dim); color: var(--coral); }
+
+/* Step message */
+.step-msg {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  text-align: center;
+  min-height: 46px;
+}
+
+.step-msg .hi-amber { color: var(--amber); }
+.step-msg .hi-green { color: var(--green); }
+.step-msg .hi-coral { color: var(--coral); }
+
+/* ── CONTROLS ────────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.ctrl-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.ctrl-btn:hover { color: var(--text); border-color: var(--hint); }
+.ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.ctrl-btn.primary { border-color: var(--amber); background: var(--amber-dim); color: var(--amber); }
+.ctrl-btn.primary:hover { background: rgba(255,190,89,0.22); }
+.ctrl-btn.primary.playing { border-color: var(--coral); background: var(--coral-dim); color: var(--coral); }
+
+.step-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--hint);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.speed-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.speed-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  white-space: nowrap;
+}
+
+input[type=range] {
+  width: 80px;
+  accent-color: var(--amber);
+}
+
+/* ── LOG PANEL ───────────────────────────────────────────────── */
+.log-toggle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.log-toggle:hover { color: var(--muted); }
+
+.log-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+}
+
+.log-panel.open { max-height: 260px; }
+
+.log-inner {
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+  max-height: 256px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.log-entry {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--hint);
+  line-height: 1.5;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: var(--surface2);
+  border-left: 2px solid var(--border);
+  transition: all 0.2s;
+}
+
+.log-entry.active {
+  color: var(--text);
+  border-left-color: var(--amber);
+  background: rgba(255,190,89,0.06);
+}
+
+/* ── INSIGHT BOX ─────────────────────────────────────────────── */
+.insight-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.insight-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 10px;
+}
+
+.insight-body {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.insight-body strong { color: var(--text); font-weight: 500; }
+.insight-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--surface2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--amber);
+}
+
+/* ── CODE BLOCK ──────────────────────────────────────────────── */
+.code-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.code-block .kw   { color: var(--purple); }
+.code-block .fn   { color: var(--teal);   }
+.code-block .var  { color: var(--amber);  }
+.code-block .cmt  { color: var(--hint); font-style: italic; }
+.code-block .num  { color: var(--green);  }
+
+@media (max-width: 600px) {
+  .num-cell { width: 42px; height: 42px; font-size: 15px; }
+  .state-card { min-width: 90px; padding: 10px 14px; }
+  .sc-value { font-size: 22px; }
+  .cand-card { min-width: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-link" href="/">← dsa-notebook</a>
+  <div class="eyebrow">Dynamic Programming — 1D</div>
+  <h1>Maximum Product<br><span>Subarray</span></h1>
+  <div class="header-meta">
+    <span class="meta-pill pill-diff">medium</span>
+    <span class="meta-pill pill-pat">DP / Kadane variant</span>
+    <span class="meta-pill pill-num">LC #152</span>
+  </div>
+</header>
+
+<div class="page-wrap">
+
+  <!-- Problem description -->
+  <div class="problem-desc">
+    <div class="prob-tag">Problem Statement</div>
+    <p class="prob-statement">
+      Given an integer array <strong>nums</strong>, find the subarray that has the
+      <strong>largest product</strong> and return that product.
+    </p>
+    <div class="prob-example">
+      <span class="prob-ex-label">Example 1</span>
+      Input:  nums = <span class="ex-hi">[2, 3, -2, 4]</span><br>
+      Output: <span class="ex-ans">6</span>  &nbsp;→&nbsp; subarray [2, 3]<br><br>
+      <span class="prob-ex-label">Example 2</span>
+      Input:  nums = <span class="ex-hi">[-2, 3, -4]</span><br>
+      Output: <span class="ex-ans">24</span> &nbsp;→&nbsp; subarray [-2, 3, -4]
+    </div>
+  </div>
+
+  <!-- Custom input -->
+  <div class="input-row">
+    <span class="input-label">nums =</span>
+    <input class="array-input" id="array-input" type="text" value="2, 3, -2, 4" placeholder="e.g. 2, 3, -2, 4">
+    <button class="run-btn" id="run-btn" onclick="initViz()">Run</button>
+  </div>
+
+  <!-- Viz canvas -->
+  <div class="viz-canvas">
+
+    <div class="viz-section-label" id="array-label">Array</div>
+    <div class="array-row" id="array-row"></div>
+
+    <div class="viz-section-label">State</div>
+    <div class="state-row">
+      <div class="state-card sc-max" id="card-max">
+        <span class="sc-label">maxProd</span>
+        <span class="sc-value" id="val-max">—</span>
+      </div>
+      <div class="state-card sc-min" id="card-min">
+        <span class="sc-label">minProd</span>
+        <span class="sc-value" id="val-min">—</span>
+      </div>
+      <div class="state-card sc-res" id="card-res">
+        <span class="sc-label">result</span>
+        <span class="sc-value" id="val-res">—</span>
+      </div>
+    </div>
+
+    <div class="viz-section-label" id="cand-label" style="display:none;">Candidates at current index</div>
+    <div class="candidates-wrap" id="cands-wrap"></div>
+
+    <div class="step-msg" id="step-msg">Enter an array and press Run.</div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-reset" onclick="goTo(0)">reset</button>
+    <button class="ctrl-btn" id="btn-prev"  onclick="stepBack()">← prev</button>
+    <span class="step-counter" id="step-counter">0 / 0</span>
+    <button class="ctrl-btn" id="btn-next"  onclick="stepFwd()">next →</button>
+    <button class="ctrl-btn primary" id="btn-play" onclick="togglePlay()">play</button>
+    <div class="speed-wrap">
+      <span class="speed-label">speed</span>
+      <input type="range" id="speed-slider" min="1" max="5" value="3">
+    </div>
+  </div>
+
+  <!-- Log -->
+  <button class="log-toggle" id="log-toggle-btn" onclick="toggleLog()">▶ step log</button>
+  <div class="log-panel" id="log-panel">
+    <div class="log-inner" id="log-inner"></div>
+  </div>
+
+  <!-- Insight -->
+  <div class="insight-box">
+    <div class="insight-title">Key Insight</div>
+    <div class="insight-body">
+      <p>
+        Unlike maximum <em>sum</em> subarray, a <strong>negative × negative</strong> pair can
+        flip the running product back to a large positive. So we can't just track
+        <code>maxProd</code> — we must also track <code>minProd</code> (the
+        most-negative running product).
+      </p>
+      <p style="margin-top:0.75rem;">
+        At each index, the new <code>maxProd</code> is the best of three candidates:
+        <code>nums[i]</code> alone, <code>prevMax × nums[i]</code>, or
+        <code>prevMin × nums[i]</code>. The same three choices determine <code>minProd</code>.
+        <strong>Both are needed simultaneously</strong> before updating either.
+      </p>
+    </div>
+    <!-- Python solution -->
+    <div class="code-block"><span class="kw">def</span> <span class="fn">maxProduct</span>(nums):
+    <span class="var">maxP</span>, <span class="var">minP</span>, <span class="var">res</span> = nums[<span class="num">0</span>], nums[<span class="num">0</span>], nums[<span class="num">0</span>]
+
+    <span class="kw">for</span> n <span class="kw">in</span> nums[<span class="num">1</span>:]:
+        <span class="cmt"># freeze prevMax before overwriting</span>
+        candidates = (n, <span class="var">maxP</span> * n, <span class="var">minP</span> * n)
+        <span class="var">maxP</span> = <span class="fn">max</span>(candidates)
+        <span class="var">minP</span> = <span class="fn">min</span>(candidates)
+        <span class="var">res</span>  = <span class="fn">max</span>(<span class="var">res</span>, <span class="var">maxP</span>)
+
+    <span class="kw">return</span> <span class="var">res</span>
+    <span class="cmt"># Time O(n) · Space O(1)</span></div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+// ─── State ─────────────────────────────────────────────────────────────────
+let steps    = [];
+let current  = 0;
+let playing  = false;
+let playTimer = null;
+let logOpen  = false;
+let nums     = [];
+
+// ─── Speed map ─────────────────────────────────────────────────────────────
+function playDelay() {
+  const s = parseInt(document.getElementById('speed-slider').value);
+  return [900, 650, 420, 260, 130][s - 1];
+}
+
+// ─── Build steps ───────────────────────────────────────────────────────────
+function buildSteps(arr) {
+  const s = [];
+  let maxP = arr[0], minP = arr[0], result = arr[0];
+
+  s.push({
+    i: 0, maxP, minP, result,
+    candidates: null,
+    msg: `<span class="hi-amber">Init:</span> seed maxProd, minProd, result = nums[0] = <span class="hi-amber">${arr[0]}</span>`,
+    logLine: `i=0  seed → maxProd=${maxP}  minProd=${minP}  result=${result}`
+  });
+
+  for (let i = 1; i < arr.length; i++) {
+    const prevMax = maxP, prevMin = minP;
+    const c1 = arr[i];
+    const c2 = prevMax * arr[i];
+    const c3 = prevMin * arr[i];
+    maxP   = Math.max(c1, c2, c3);
+    minP   = Math.min(c1, c2, c3);
+    const oldRes = result;
+    result = Math.max(result, maxP);
+
+    const negNote = arr[i] < 0
+      ? ` <span class="hi-coral">(negative — swap max↔min)</span>`
+      : arr[i] === 0
+        ? ` <span class="hi-coral">(zero — resets both tracks)</span>`
+        : '';
+
+    s.push({
+      i, maxP, minP, result,
+      candidates: [
+        { expr: `nums[${i}]`,                    val: c1 },
+        { expr: `prevMax × nums[${i}]`,           val: c2 },
+        { expr: `prevMin × nums[${i}]`,           val: c3 },
+      ],
+      maxWinner: maxP,
+      minWinner: minP,
+      resultChanged: result !== oldRes,
+      msg: `i=<span class="hi-amber">${i}</span>${negNote} → maxProd=<span class="hi-amber">${maxP}</span>, minProd=<span class="hi-coral">${minP}</span>, result=<span class="hi-green">${result}</span>`,
+      logLine: `i=${i}  nums=${arr[i]}  cands=[${c1},${c2},${c3}]  maxProd=${maxP}  minProd=${minP}  result=${result}`
+    });
+  }
+
+  // Final step — highlight best subarray by brute-force
+  const bestSub = findBestSubarray(arr);
+  s[s.length - 1].done = true;
+  s[s.length - 1].bestStart = bestSub.start;
+  s[s.length - 1].bestEnd   = bestSub.end;
+
+  return s;
+}
+
+function findBestSubarray(arr) {
+  let best = -Infinity, start = 0, end = 0;
+  for (let i = 0; i < arr.length; i++) {
+    let prod = 1;
+    for (let j = i; j < arr.length; j++) {
+      prod *= arr[j];
+      if (prod > best) { best = prod; start = i; end = j; }
+    }
+  }
+  return { start, end };
+}
+
+// ─── Render ────────────────────────────────────────────────────────────────
+function renderCells(step) {
+  const row = document.getElementById('array-row');
+  const cols = row.querySelectorAll('.num-cell');
+  const isDone = step.done;
+
+  cols.forEach((cell, idx) => {
+    cell.className = 'num-cell';
+    if (isDone && idx >= step.bestStart && idx <= step.bestEnd) {
+      cell.classList.add('cs-best');
+    } else if (idx === step.i && !isDone) {
+      cell.classList.add('cs-current');
+    } else if (idx < step.i) {
+      cell.classList.add('cs-visited');
+    } else {
+      cell.classList.add('cs-default');
+    }
+  });
+}
+
+function renderStateCards(step, prevStep) {
+  const setCard = (id, cardId, val, prevVal) => {
+    document.getElementById(id).textContent = val;
+    const card = document.getElementById(cardId);
+    const changed = prevStep && prevVal !== val;
+    card.classList.toggle('updated', changed);
+    if (changed) {
+      const v = document.getElementById(id);
+      v.classList.add('pop');
+      setTimeout(() => v.classList.remove('pop'), 200);
+    }
+  };
+  setCard('val-max', 'card-max', step.maxP, prevStep?.maxP);
+  setCard('val-min', 'card-min', step.minP, prevStep?.minP);
+  setCard('val-res', 'card-res', step.result, prevStep?.result);
+}
+
+function renderCandidates(step) {
+  const wrap = document.getElementById('cands-wrap');
+  const label = document.getElementById('cand-label');
+  if (!step.candidates) {
+    wrap.innerHTML = '';
+    label.style.display = 'none';
+    return;
+  }
+  label.style.display = 'block';
+  const cards = step.candidates.map(c => {
+    const isMax = c.val === step.maxWinner;
+    const isMin = c.val === step.minWinner;
+    // a card can be both max-winner and min-winner (all equal)
+    const cls = isMax && isMin
+      ? 'cand-card winner-max winner-min'
+      : isMax ? 'cand-card winner-max'
+      : isMin ? 'cand-card winner-min'
+      : 'cand-card';
+    return `<div class="${cls}">
+      <span class="cand-expr">${c.expr}</span>
+      <span class="cand-val">${c.val}</span>
+      <span class="cand-badge badge-max">↑ maxProd</span>
+      <span class="cand-badge badge-min">↓ minProd</span>
+    </div>`;
+  }).join('');
+  wrap.innerHTML = `<div class="cand-row">${cards}</div>`;
+}
+
+function renderLog() {
+  const inner = document.getElementById('log-inner');
+  inner.innerHTML = steps.map((s, idx) =>
+    `<div class="log-entry${idx === current ? ' active' : ''}">${s.logLine}</div>`
+  ).join('');
+  // scroll active into view
+  const active = inner.querySelector('.active');
+  if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function renderMsg(step) {
+  document.getElementById('step-msg').innerHTML = step.msg;
+}
+
+function renderCounter() {
+  document.getElementById('step-counter').textContent =
+    `${current + 1} / ${steps.length}`;
+}
+
+function renderAll(idx) {
+  if (!steps.length) return;
+  const step = steps[idx];
+  const prevStep = idx > 0 ? steps[idx - 1] : null;
+  renderCells(step);
+  renderStateCards(step, prevStep);
+  renderCandidates(step);
+  renderMsg(step);
+  renderCounter();
+  if (logOpen) renderLog();
+  document.getElementById('btn-prev').disabled = idx === 0;
+  document.getElementById('btn-next').disabled = idx === steps.length - 1;
+}
+
+// ─── Navigation ────────────────────────────────────────────────────────────
+function goTo(idx) {
+  current = Math.max(0, Math.min(idx, steps.length - 1));
+  renderAll(current);
+}
+
+function stepFwd() {
+  if (current < steps.length - 1) goTo(current + 1);
+  else stopPlay();
+}
+
+function stepBack() {
+  if (current > 0) goTo(current - 1);
+}
+
+function togglePlay() {
+  if (playing) stopPlay();
+  else startPlay();
+}
+
+function startPlay() {
+  if (current >= steps.length - 1) goTo(0);
+  playing = true;
+  document.getElementById('btn-play').textContent = 'pause';
+  document.getElementById('btn-play').classList.add('playing');
+  tick();
+}
+
+function stopPlay() {
+  playing = false;
+  clearTimeout(playTimer);
+  document.getElementById('btn-play').textContent = 'play';
+  document.getElementById('btn-play').classList.remove('playing');
+}
+
+function tick() {
+  if (!playing) return;
+  stepFwd();
+  if (current < steps.length - 1) {
+    playTimer = setTimeout(tick, playDelay());
+  } else {
+    stopPlay();
+  }
+}
+
+// ─── Log panel ─────────────────────────────────────────────────────────────
+function toggleLog() {
+  logOpen = !logOpen;
+  const panel = document.getElementById('log-panel');
+  const btn   = document.getElementById('log-toggle-btn');
+  panel.classList.toggle('open', logOpen);
+  btn.textContent = (logOpen ? '▼' : '▶') + ' step log';
+  if (logOpen) renderLog();
+}
+
+// ─── Init ───────────────────────────────────────────────────────────────────
+function initViz() {
+  stopPlay();
+  const raw = document.getElementById('array-input').value;
+  const parsed = raw.split(',')
+    .map(s => parseInt(s.trim(), 10))
+    .filter(n => !isNaN(n));
+
+  if (parsed.length < 1) {
+    document.getElementById('step-msg').textContent = 'Please enter at least one integer.';
+    return;
+  }
+
+  nums  = parsed;
+  steps = buildSteps(nums);
+
+  // Build array cells
+  const row = document.getElementById('array-row');
+  row.innerHTML = nums.map((v, i) => `
+    <div class="cell-col">
+      <span class="cell-idx">${i}</span>
+      <div class="num-cell cs-default">${v}</div>
+    </div>
+  `).join('');
+
+  // Clear log
+  document.getElementById('log-inner').innerHTML = '';
+
+  current = 0;
+  renderAll(0);
+}
+
+// Boot with default
+window.addEventListener('DOMContentLoaded', initViz);
+
+// Allow pressing Enter in the input
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('array-input')
+    .addEventListener('keydown', e => { if (e.key === 'Enter') initViz(); });
+});
+</script>
+
+</body>
+</html>
